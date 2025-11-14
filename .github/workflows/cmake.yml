@@ -141,7 +141,7 @@ jobs:
             name: "macOS 14 Apple Clang 15"
             env:
               BUILD_TYPE: "Release"
-            cmake_flags: "-DUSE_ASAN=OFF -DSFML_BUILD_FRAMEWORKS=TRUE -DSFML_DEPENDENCIES_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts -DBUILD_SHARED_LIBS=TRUE"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DUSE_ASAN=OFF -DSFML_BUILD_FRAMEWORKS=TRUE -DSFML_DEPENDENCIES_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts -DBUILD_SHARED_LIBS=TRUE"
             # cmake_generator:
             # This env runs address sanitizers
             # runs_asan: false
