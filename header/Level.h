@@ -3,7 +3,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <string>
-#include <ostream>
 
 class Level {
 public:

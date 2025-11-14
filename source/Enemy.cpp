@@ -67,7 +67,7 @@ void Enemy::updateMovementEnemy(sf::Time deltaTime, sf::Window const& window) {
     sf::Vector2f direction = playerCenter - enemyCenter;
     sf::Vector2f movement(0.f, 0.f);
 
-    const float deadZoneRadius = 5.0f;
+    constexpr float deadZoneRadius = 5.0f;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
     if (distance > deadZoneRadius) {
@@ -80,10 +80,14 @@ void Enemy::updateMovementEnemy(sf::Time deltaTime, sf::Window const& window) {
 
     if (newPosition.x < 0.f) newPosition.x = 0.f;
     if (newPosition.y < 0.f) newPosition.y = 0.f;
-    if (newPosition.x + enemySpriteSize.x > windowSize.x)
-        newPosition.x = windowSize.x - enemySpriteSize.x;
-    if (newPosition.y + enemySpriteSize.y > windowSize.y)
-        newPosition.y = windowSize.y - enemySpriteSize.y;
+
+    // Cast the unsigned ints to floats for the comparison
+    if (newPosition.x + static_cast<float>(enemySpriteSize.x) > static_cast<float>(windowSize.x))
+        // Cast BOTH before subtracting to avoid unsigned int math errors (like underflow)
+            newPosition.x = static_cast<float>(windowSize.x) - static_cast<float>(enemySpriteSize.x);
+
+    if (newPosition.y + static_cast<float>(enemySpriteSize.y) > static_cast<float>(windowSize.y))
+        newPosition.y = static_cast<float>(windowSize.y) - static_cast<float>(enemySpriteSize.y);
 
     mSprite.setPosition(newPosition);
 }

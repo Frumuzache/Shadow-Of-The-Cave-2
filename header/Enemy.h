@@ -2,7 +2,6 @@
 #define ENEMY_H
 
 #include <SFML/Graphics.hpp>
-#include <ostream> // For std::ostream
 #include "Entity.h"
 
 class Enemy : public Entity {

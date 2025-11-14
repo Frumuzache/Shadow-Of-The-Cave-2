@@ -16,7 +16,7 @@ public:
 
     void run();
 
-    sf::Vector2u getWindowSize() const; // Made const
+    // sf::Vector2u getWindowSize() const; // Made const
 
     // operator<< for display
     friend std::ostream& operator<<(std::ostream& os, const Game& game);

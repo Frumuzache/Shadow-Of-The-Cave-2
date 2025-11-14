@@ -2,7 +2,6 @@
 #define ENTITY_H
 
 #include <SFML/Graphics.hpp>
-#include <ostream> // For std::ostream
 
 class Entity {
 public:
@@ -22,7 +21,7 @@ public:
 
     // Added a base getter for health
     virtual float getCurrentHealth() const;
-    float getMaxHealth() const;
+    // float getMaxHealth() const;
 
     // operator<< for display
     friend std::ostream& operator<<(std::ostream& os, const Entity& entity);

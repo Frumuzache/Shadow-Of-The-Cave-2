@@ -26,9 +26,12 @@ Game::Game(unsigned int width, unsigned int height, const std::string& title)
 
     // --- Example of Rule of Three ---
     std::cout << "\n--- Testing Rule of Three for Weapon ---\n";
-    Weapon testWeapon = mPlayer.getWeapon(); // Tests Copy Constructor
-    Weapon testWeapon2;
-    testWeapon2 = testWeapon; // Tests Copy Assignment
+
+    const Weapon testWeapon = mPlayer.getWeapon(); // Tests Copy Constructor
+    const Weapon& testWeapon2 = testWeapon;
+    (void)testWeapon2;
+
+
     std::cout << "--- End of Test ---\n" << std::endl;
     // testWeapon and testWeapon2 will be destroyed here, testing Destructor
 }
@@ -60,8 +63,8 @@ void Game::processEvents() {
                 if (!mEnemy) continue;
 
                 // Get attack stats from the Player object's weapon
-                float attackRange = mPlayer.getAttackRange();
-                float attackDamage = mPlayer.getAttackDamage();
+                float attackRange = Player::getAttackRange();
+                float attackDamage = Player::getAttackDamage();
 
                 sf::Vector2f playerPosition = mPlayer.getPlayerPosition();
                 sf::Vector2u playerSpriteSize = mPlayer.getTextureSize();
@@ -69,8 +72,8 @@ void Game::processEvents() {
                 sf::Vector2f enemyPosition = mEnemy->getPosition();
                 sf::Vector2u enemySpriteSize = mEnemy->getSpriteSize();
 
-                float distanceX = (playerPosition.x + playerSpriteSize.x / 2) - (enemyPosition.x + enemySpriteSize.x / 2);
-                float distanceY = (playerPosition.y + playerSpriteSize.y / 2) - (enemyPosition.y + enemySpriteSize.y / 2);
+                float distanceX = (playerPosition.x + static_cast<float>(playerSpriteSize.x) / 2.0f) - (enemyPosition.x + static_cast<float>(enemySpriteSize.x) / 2.0f);
+                float distanceY = (playerPosition.y + static_cast<float>(playerSpriteSize.y) / 2.0f) - (enemyPosition.y + static_cast<float>(enemySpriteSize.y) / 2.0f);
                 float distance = std::sqrt(distanceX * distanceX + distanceY * distanceY);
 
                 if (distance <= attackRange)

@@ -89,10 +89,13 @@ void Player::updateMovement(sf::Time deltaTime, const sf::Window& mWindow)
         position.x = 0.f;
     if (position.y < 0.f)
         position.y = 0.f;
-    if (position.x + spriteSize.x > windowSize.x)
-        position.x = windowSize.x - spriteSize.x;
-    if (position.y + spriteSize.y > windowSize.y)
-        position.y = windowSize.y - spriteSize.y;
+
+    // Cast all unsigned ints to floats for the math
+    if (position.x + static_cast<float>(spriteSize.x) > static_cast<float>(windowSize.x))
+        position.x = static_cast<float>(windowSize.x) - static_cast<float>(spriteSize.x);
+
+    if (position.y + static_cast<float>(spriteSize.y) > static_cast<float>(windowSize.y))
+        position.y = static_cast<float>(windowSize.y) - static_cast<float>(spriteSize.y);
 
     mSprite.setPosition(position);
 }

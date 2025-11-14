@@ -19,12 +19,12 @@ public:
     Weapon& operator=(const Weapon& other);
     // ---------------------
 
-    float getDamage() const;
-    float getReloadTime() const;
-    float getRange() const;
-    std::string getName() const; // Made const
-
-    float attack() const; // Made const
+    // float getDamage() const;
+    // float getReloadTime() const;
+    // float getRange() const;
+    // std::string getName() const;
+    //
+    // float attack() const;
 
     // operator<< for display
     friend std::ostream& operator<<(std::ostream& os, const Weapon& weapon);

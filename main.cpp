@@ -1,6 +1,5 @@
 #include "header/Game.h"
 #include <iostream>     // For std::cerr
-#include <stdexcept>    // For std::exception
 #include <cstdlib>      // For EXIT_SUCCESS and EXIT_FAILURE
 
 int main()

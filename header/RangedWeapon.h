@@ -13,9 +13,9 @@ public:
     RangedWeapon(const std::string& name, float damage, float reloadTime, float range, int maxAmmo);
 
     // Funcții specifice armelor ranged
-    void reload();
-    int getCurrentAmmo() const;
-    int getMaxAmmo() const;
+    // void reload();
+    // int getCurrentAmmo() const;
+    // int getMaxAmmo() const;
 
     // Suprascriem funcția de atac (poate)
     // float attack() const; // (momentan folosim cea de bază)
