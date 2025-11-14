@@ -10,6 +10,7 @@ runs:
           libx11-dev \
           libxrandr-dev \
           libxcursor-dev \
+          libxi-dev \
           libudev-dev \
           libopenal-dev \
           libflac-dev \
