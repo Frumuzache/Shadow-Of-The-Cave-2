@@ -15,18 +15,18 @@ RangedWeapon::RangedWeapon(const std::string& name, float damage, float reloadTi
       mCurrentAmmo(maxAmmo) {
 }
 
-void RangedWeapon::reload() {
-    mCurrentAmmo = mMaxAmmo;
-    // Aici s-ar putea adăuga și un timp de reîncărcare
-}
+// void RangedWeapon::reload() {
+//     mCurrentAmmo = mMaxAmmo;
+//     // Aici s-ar putea adăuga și un timp de reîncărcare
+// }
 
-int RangedWeapon::getCurrentAmmo() const {
-    return mCurrentAmmo;
-}
+// int RangedWeapon::getCurrentAmmo() const {
+//     return mCurrentAmmo;
+// }
 
-int RangedWeapon::getMaxAmmo() const {
-    return mMaxAmmo;
-}
+// int RangedWeapon::getMaxAmmo() const {
+//     return mMaxAmmo;
+// }
 
 // Implementarea operatorului<<
 std::ostream& operator<<(std::ostream& os, const RangedWeapon& weapon) {

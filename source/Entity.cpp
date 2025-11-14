@@ -39,9 +39,9 @@ float Entity::getCurrentHealth() const {
     return currentHealth;
 }
 
-float Entity::getMaxHealth() const {
-    return maxHealth;
-}
+// float Entity::getMaxHealth() const {
+//     return maxHealth;
+// }
 
 void Entity::render(sf::RenderWindow& window) const {
     window.draw(mSprite);

@@ -38,26 +38,26 @@ Weapon& Weapon::operator=(const Weapon& other) {
 }
 
 // --- Getters (all const) ---
-float Weapon::getDamage() const {
-    return damage;
-}
+// float Weapon::getDamage() const {
+//     return damage;
+// }
 
-float Weapon::getReloadTime() const {
-    return reloadTime;
-}
+// float Weapon::getReloadTime() const {
+//     return reloadTime;
+// }
 
-float Weapon::getRange() const {
-    return range;
-}
+// float Weapon::getRange() const {
+//     return range;
+// }
 
-std::string Weapon::getName() const {
-    return name;
-}
+// std::string Weapon::getName() const {
+//     return name;
+// }
 
-float Weapon::attack() const {
-    // In a real game, this might trigger an animation or cooldown
-    return damage;
-}
+// float Weapon::attack() const {
+//     // In a real game, this might trigger an animation or cooldown
+//     return damage;
+// }
 
 // --- operator<< ---
 std::ostream& operator<<(std::ostream& os, const Weapon& weapon) {

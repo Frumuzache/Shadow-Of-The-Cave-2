@@ -113,9 +113,9 @@ void Game::render() {
     mWindow.display();
 }
 
-sf::Vector2u Game::getWindowSize() const {
-    return mWindow.getSize();
-}
+// sf::Vector2u Game::getWindowSize() const {
+//     return mWindow.getSize();
+// }
 
 // --- operator<< (Composition of calls) ---
 std::ostream& operator<<(std::ostream& os, const Game& game) {
