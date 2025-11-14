@@ -6,9 +6,10 @@
 #include <ostream> // For std::ostream
 
 Enemy::Enemy()
-    : mDirection(0.f, 0.f),
-      initialPosition(100.f, 100.f),
-      Entity(80.f, 50.f) // Call base constructor (Speed, Health)
+    :Entity(80.f, 50.f), // Call base constructor (Speed, Health)
+    mDirection(0.f, 0.f),
+    initialPosition(100.f, 100.f)
+
 {
     if (!mTexture.loadFromFile("../assets/enemy.png"))
         throw std::runtime_error("Failed to load enemy texture");
@@ -20,10 +21,11 @@ Enemy::Enemy()
 
 // Parameterized constructor
 Enemy::Enemy(sf::Vector2f startPosition, float speed, float health)
-    : mDirection(0.f, 0.f),
-      initialPosition(startPosition),
-      Entity(speed, health) // Call base constructor
+    :Entity(speed, health),
+    mDirection(0.f, 0.f),
+    initialPosition(startPosition)
 {
+
     if (!mTexture.loadFromFile("../assets/enemy.png"))
         throw std::runtime_error("Failed to load enemy texture");
 
