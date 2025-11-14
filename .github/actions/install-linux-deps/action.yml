@@ -6,6 +6,8 @@ runs:
     - run: |
         sudo apt-get update
         sudo apt-get install --no-install-recommends \
+          build-essential \
+          libx11-dev
           libxrandr-dev \
           libxcursor-dev \
           libudev-dev \
