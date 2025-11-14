@@ -105,7 +105,7 @@ void Game::render() {
     mLevel.render(mWindow); // Draw the level
     mPlayer.render(mWindow); // Draw the player
 
-    for (auto& enemy : mEnemies) {
+    for (const auto& enemy : mEnemies) {
         enemy->render(mWindow);
     }
 

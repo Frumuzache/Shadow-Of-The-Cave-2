@@ -46,7 +46,7 @@ void Enemy::death() {
 
 void Enemy::updateMovementEnemy(sf::Time deltaTime, sf::Window const& window) {
     // (Movement logic unchanged)
-    Player& player = Player::getInstance();
+    const Player& player = Player::getInstance();
     sf::Vector2f playerPosition = player.getPlayerPosition();
     sf::Vector2u playerSpriteSize = player.getTextureSize();
 
