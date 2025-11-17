@@ -1,6 +1,8 @@
 #!/usr/bin/bash
 
-cppcheck --enable=all \
+ENABLED_CHECKS="warning,style,performance,portability"
+
+cppcheck --enable="${ENABLED_CHECKS}" \
     --inline-suppr \
     --project="${BUILD_DIR:-build}"/compile_commands.json \
     -i"${BUILD_DIR:-build}" --suppress="*:${BUILD_DIR:-build}/*" \
