@@ -10,9 +10,7 @@ class Player : public Entity {
 public:
     Player();
 
-    // "override" tells the compiler we are implementing
-    // the pure virtual function from our parent (Entity)
-    void update(sf::Time deltaTime, const sf::Vector2f& mapBounds);
+    void update(sf::Time deltaTime, const sf::Vector2f& mapBounds) override;
 
     sf::Vector2f getPlayerPosition() const;
 
