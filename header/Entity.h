@@ -17,6 +17,8 @@ public:
     // Helper functions (all const)
     sf::FloatRect getGlobalBounds() const;
     sf::Vector2f getPosition() const;
+    sf::Vector2f setPosition(const sf::Vector2f& position);
+
     sf::Vector2u getSpriteSize() const;
 
     // Added a base getter for health

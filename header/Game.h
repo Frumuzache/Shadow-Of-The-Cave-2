@@ -25,6 +25,8 @@ private:
     void processEvents();
     void update(sf::Time deltaTime);
     void render();
+    void resolveEnemyCollisions();
+
 
     // Composition: Game "has-a" window, clock, level, hud, player, and enemies
     sf::RenderWindow mWindow;

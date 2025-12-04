@@ -104,6 +104,10 @@ void Game::update(sf::Time deltaTime) {
         return false;
     });
 
+
+    resolveEnemyCollisions();
+
+
     // --- CAMERA LOGIC STARTS HERE ---
     sf::Vector2f targetPos = mPlayer.getPlayerPosition();
     sf::Vector2f viewSize = mView.getSize();
@@ -159,9 +163,79 @@ void Game::render() {
     mWindow.display();
 }
 
-// sf::Vector2u Game::getWindowSize() const {
-//     return mWindow.getSize();
-// }
+
+
+
+
+void Game::resolveEnemyCollisions() {
+    // Loop through all unique pairs of enemies
+    for (size_t i = 0; i < mEnemies.size(); ++i) {
+        for (size_t j = i + 1; j < mEnemies.size(); ++j) {
+
+            auto* enemyA = mEnemies[i].get();
+            auto* enemyB = mEnemies[j].get();
+
+            // 1. Calculate Centers
+            sf::Vector2f posA = enemyA->getPosition();
+            sf::Vector2u sizeA = enemyA->getSpriteSize();
+            sf::Vector2f centerA = {
+                posA.x + sizeA.x / 2.f,
+                posA.y + sizeA.y / 2.f
+            };
+
+            sf::Vector2f posB = enemyB->getPosition();
+            sf::Vector2u sizeB = enemyB->getSpriteSize();
+            sf::Vector2f centerB = {
+                posB.x + sizeB.x / 2.f,
+                posB.y + sizeB.y / 2.f
+            };
+
+            // 2. Check Distance
+            sf::Vector2f diff = centerA - centerB;
+            float distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
+
+            // Define a minimum distance based on enemy size (approx. radius)
+            // Using 80% of the width ensures they don't overlap too much but don't gap too wide
+            float minDistance = (sizeA.x + sizeB.x) * 0.4f;
+
+            // 3. Resolve Collision (Push them apart)
+            if (distance < minDistance) {
+                // Calculate push vector
+                sf::Vector2f pushVector;
+
+                if (distance == 0.f) {
+                    // If exact same position, pick random direction
+                    pushVector = {1.f, 0.f};
+                } else {
+                    // Normalization: (diff / distance)
+                    pushVector = diff / distance;
+                }
+
+                // How much to push (split between both enemies)
+                float pushStrength = (minDistance - distance) / 2.f;
+
+                // Move Enemy A away
+                sf::Vector2f newPosA = posA + (pushVector * pushStrength);
+                enemyA->setPosition(newPosA); // You might need to add setPosition to Entity if not there
+
+                // Move Enemy B the opposite way
+                sf::Vector2f newPosB = posB - (pushVector * pushStrength);
+                enemyB->setPosition(newPosB);
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 // --- operator<< (Composition of calls) ---
 std::ostream& operator<<(std::ostream& os, const Game& game) {

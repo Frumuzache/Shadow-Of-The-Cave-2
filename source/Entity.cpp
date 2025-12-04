@@ -47,6 +47,14 @@ void Entity::render(sf::RenderWindow& window) const {
     window.draw(mSprite);
 }
 
+
+sf::Vector2f Entity::setPosition(const sf::Vector2f &position) {
+    mSprite.setPosition(position);
+    return mSprite.getPosition();
+}
+
+
+
 // --- operator<< ---
 std::ostream& operator<<(std::ostream& os, const Entity& entity) {
     os << "Entity(Health: " << entity.currentHealth << "/" << entity.maxHealth
