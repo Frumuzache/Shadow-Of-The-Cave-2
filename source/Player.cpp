@@ -21,10 +21,10 @@ Player::Player()
 }
 
 // This is the main update function required by Entity
-void Player::update(sf::Time deltaTime, const sf::Window& mWindow)
+void Player::update(sf::Time deltaTime, const sf::Vector2f& mapBounds)
 {
     // It just calls the specific player functions
-    updateMovement(deltaTime, mWindow);
+    updateMovement(deltaTime, mapBounds);
     updateHealth(deltaTime);
 }
 
@@ -50,7 +50,7 @@ sf::Vector2u Player::getTextureSize() const
 }
 
 
-void Player::updateMovement(sf::Time deltaTime, const sf::Window& mWindow)
+void Player::updateMovement(sf::Time deltaTime, sf::Vector2f mapBounds)
 {
     sf::Vector2f movement(0.f, 0.f);
 
@@ -82,20 +82,24 @@ void Player::updateMovement(sf::Time deltaTime, const sf::Window& mWindow)
 
     // Border collision (keep player within window bounds)
     sf::Vector2f position = mSprite.getPosition();
-    sf::Vector2u windowSize = mWindow.getSize();
-    sf::Vector2u spriteSize = mTexture.getSize(); // Using texture size like you did
+    sf::Vector2u spriteSize = mTexture.getSize();
 
-    if (position.x < 0.f)
-        position.x = 0.f;
-    if (position.y < 0.f)
-        position.y = 0.f;
+    // Definim limita HARDCODED la 3000 (sau o primești ca parametru)
+    // Trebuie să fie fix cât ai pus în Level.cpp!
+    float mapLimitX = 3000.f;
+    float mapLimitY = 3000.f;
 
-    // Cast all unsigned ints to floats for the math
-    if (position.x + static_cast<float>(spriteSize.x) > static_cast<float>(windowSize.x))
-        position.x = static_cast<float>(windowSize.x) - static_cast<float>(spriteSize.x);
+    // Stânga și Sus (Nu trecem de 0)
+    if (position.x < 0.f) position.x = 0.f;
+    if (position.y < 0.f) position.y = 0.f;
 
-    if (position.y + static_cast<float>(spriteSize.y) > static_cast<float>(windowSize.y))
-        position.y = static_cast<float>(windowSize.y) - static_cast<float>(spriteSize.y);
+    // Dreapta (Nu trecem de 3000)
+    if (position.x + static_cast<float>(spriteSize.x) > mapLimitX)
+        position.x = mapLimitX - static_cast<float>(spriteSize.x);
+
+    // Jos (Nu trecem de 3000)
+    if (position.y + static_cast<float>(spriteSize.y) > mapLimitY)
+        position.y = mapLimitY - static_cast<float>(spriteSize.y);
 
     mSprite.setPosition(position);
 }

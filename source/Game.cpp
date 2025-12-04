@@ -9,8 +9,8 @@
 Game::Game(unsigned int width, unsigned int height, const std::string& title)
     : mWindow(sf::VideoMode({width, height}), title),
       mClock{},
-      // --- Initialize composed objects ---
-      mLevel("../assets/background.png"),
+
+      mLevel("../assets/background.png", sf::Vector2f(3000.f, 3000.f)),
       mHUD("../assets/arial.ttf"), // <-- Assumes this font exists
       mPlayer(Player::getInstance()) // Get singleton instance
 {
@@ -27,13 +27,18 @@ Game::Game(unsigned int width, unsigned int height, const std::string& title)
     // --- Example of Rule of Three ---
     std::cout << "\n--- Testing Rule of Three for Weapon ---\n";
 
-    const Weapon testWeapon = mPlayer.getWeapon(); // Tests Copy Constructor
-    const Weapon& testWeapon2 = testWeapon;
-    (void)testWeapon2;
+    // const Weapon testWeapon = mPlayer.getWeapon(); // Tests Copy Constructor
+    // const Weapon& testWeapon2 = testWeapon;
+    // (void)testWeapon2;
+    //
+    // std::cout << "--- End of Test ---\n" << std::endl;
+
+    mWorldSize = sf::Vector2f(3000.f, 3000.f);
+    mView.setSize({static_cast<float>(width), static_cast<float>(height)});
+
+    mView.setCenter({static_cast<float>(width) / 2.f, static_cast<float>(height) / 2.f});
 
 
-    std::cout << "--- End of Test ---\n" << std::endl;
-    // testWeapon and testWeapon2 will be destroyed here, testing Destructor
 }
 
 // The main run function
@@ -85,11 +90,11 @@ void Game::processEvents() {
 
 // Function to update the game state
 void Game::update(sf::Time deltaTime) {
-    mPlayer.update(deltaTime, mWindow); // Update player from member
+    mPlayer.update(deltaTime, mWorldSize); // Update player from member
     mHUD.update(mPlayer); // Update HUD with player's new state
 
     for (auto& enemy : mEnemies)
-        enemy->update(deltaTime, mWindow);
+        enemy->update(deltaTime, mWorldSize);
 
     std::erase_if(mEnemies, [](const auto& enemy) {
         if (enemy->getCurrentHealth() <= 0) {
@@ -98,11 +103,48 @@ void Game::update(sf::Time deltaTime) {
         }
         return false;
     });
+
+    // --- CAMERA LOGIC STARTS HERE ---
+    sf::Vector2f targetPos = mPlayer.getPlayerPosition();
+    sf::Vector2f viewSize = mView.getSize();
+
+    // Calculate the center of the player sprite to center the camera accurately
+    sf::Vector2u playerSize = mPlayer.getTextureSize();
+    targetPos.x += playerSize.x / 2.f;
+    targetPos.y += playerSize.y / 2.f;
+
+    float halfWidth = viewSize.x / 2.0f;
+    float halfHeight = viewSize.y / 2.0f;
+
+    // Clamp X (Horizontal)
+    if (targetPos.x < halfWidth) {
+        targetPos.x = halfWidth;
+    }
+    else if (targetPos.x > mWorldSize.x - halfWidth) {
+        targetPos.x = mWorldSize.x - halfWidth;
+    }
+
+    // Clamp Y (Vertical)
+    if (targetPos.y < halfHeight) {
+        targetPos.y = halfHeight;
+    }
+    else if (targetPos.y > mWorldSize.y - halfHeight) {
+        targetPos.y = mWorldSize.y - halfHeight;
+    }
+
+    mView.setCenter(targetPos);
+    // --- CAMERA LOGIC ENDS HERE ---
+
+
+    mHUD.update(mPlayer);
 }
 
 // Function to draw everything
 void Game::render() {
     mWindow.clear(sf::Color::Black);
+
+    mWindow.setView(mView);
+
 
     // Draw composed objects
     mLevel.render(mWindow); // Draw the level
@@ -112,6 +154,7 @@ void Game::render() {
         enemy->render(mWindow);
     }
 
+    mWindow.setView(mWindow.getDefaultView());
     mHUD.render(mWindow); // Draw the HUD on top
     mWindow.display();
 }

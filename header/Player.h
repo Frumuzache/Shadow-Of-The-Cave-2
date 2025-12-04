@@ -12,7 +12,7 @@ public:
 
     // "override" tells the compiler we are implementing
     // the pure virtual function from our parent (Entity)
-    void update(sf::Time deltaTime, const sf::Window& window) override;
+    void update(sf::Time deltaTime, const sf::Vector2f& mapBounds);
 
     sf::Vector2f getPlayerPosition() const;
 
@@ -28,7 +28,7 @@ public:
 
 private:
     // These functions are specific to the Player's update
-    void updateMovement([[maybe_unused]]sf::Time deltaTime, const sf::Window& window);
+    void updateMovement([[maybe_unused]]sf::Time deltaTime, sf::Vector2f mapBounds);
 
     static void updateHealth([[maybe_unused]]sf::Time deltaTime);
     Weapon mWeapon;

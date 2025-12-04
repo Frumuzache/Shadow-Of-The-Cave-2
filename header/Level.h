@@ -6,7 +6,7 @@
 
 class Level {
 public:
-    explicit Level(std::string texturePath);
+    explicit Level(std::string texturePath, sf::Vector2f mapBoundries);
 
     void render(sf::RenderWindow& window) const;
 

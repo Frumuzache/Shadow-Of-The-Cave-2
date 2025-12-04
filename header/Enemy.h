@@ -10,7 +10,7 @@ public:
     // Parameterized constructor
     Enemy(sf::Vector2f startPosition, float speed, float health);
 
-    void update(sf::Time deltaTime, const sf::Window& window) override;
+    void update(sf::Time deltaTime, const sf::Vector2f& mapBounds);
     void takeDamage(float damageAmount);
     static void death(); // This being static is a bit odd, but kept it
 
@@ -19,7 +19,7 @@ public:
 
 private:
     // Removed UpdateHealthEnemy as it was dead code (logic is in Game.cpp)
-    void updateMovementEnemy(sf::Time deltaTime, const sf::Window& window);
+    void updateMovementEnemy(sf::Time deltaTime, const sf::Vector2f& mapBounds);
     sf::Vector2f mDirection;
     sf::Vector2f initialPosition;
 };

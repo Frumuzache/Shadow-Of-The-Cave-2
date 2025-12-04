@@ -30,6 +30,9 @@ private:
     sf::RenderWindow mWindow;
     sf::Clock mClock;
 
+    sf::View mView;
+    sf::Vector2f mWorldSize;
+
     Level mLevel; // Replaces background texture/sprite
     HUD mHUD;     // New composed object
 

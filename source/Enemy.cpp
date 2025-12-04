@@ -44,33 +44,23 @@ void Enemy::death() {
     std::cout << "Enemy has died." << std::endl;
 }
 
-void Enemy::updateMovementEnemy(sf::Time deltaTime, sf::Window const& window) {
-    // (Movement logic unchanged)
+// CHANGE 1: Pass mapBounds instead of Window
+void Enemy::updateMovementEnemy(sf::Time deltaTime, const sf::Vector2f& mapBounds) {
     const Player& player = Player::getInstance();
     sf::Vector2f playerPosition = player.getPlayerPosition();
     sf::Vector2u playerSpriteSize = player.getTextureSize();
 
     sf::Vector2f currentEnemyPos = mSprite.getPosition();
     sf::Vector2u enemySpriteSize = mTexture.getSize();
-    sf::Vector2u windowSize = window.getSize();
 
-    sf::Vector2f enemyCenter(
-        currentEnemyPos.x + static_cast<float>(enemySpriteSize.x) * 0.5f,
-        currentEnemyPos.y + static_cast<float>(enemySpriteSize.y) * 0.5f
-    );
-
-    sf::Vector2f playerCenter(
-         playerPosition.x + static_cast<float>(playerSpriteSize.x) * 0.5f,
-         playerPosition.y + static_cast<float>(playerSpriteSize.y) * 0.5f
-     );
-
+    // ... (Center calculation and direction logic remains the same) ...
+    sf::Vector2f enemyCenter(currentEnemyPos.x + static_cast<float>(enemySpriteSize.x) * 0.5f, currentEnemyPos.y + static_cast<float>(enemySpriteSize.y) * 0.5f);
+    sf::Vector2f playerCenter(playerPosition.x + static_cast<float>(playerSpriteSize.x) * 0.5f, playerPosition.y + static_cast<float>(playerSpriteSize.y) * 0.5f);
     sf::Vector2f direction = playerCenter - enemyCenter;
     sf::Vector2f movement(0.f, 0.f);
-
-    constexpr float deadZoneRadius = 5.0f;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-    if (distance > deadZoneRadius) {
+    if (distance > 5.0f) {
         movement = direction / distance;
         movement.x *= mMovementSpeed * deltaTime.asSeconds();
         movement.y *= mMovementSpeed * deltaTime.asSeconds();
@@ -78,23 +68,23 @@ void Enemy::updateMovementEnemy(sf::Time deltaTime, sf::Window const& window) {
 
     sf::Vector2f newPosition = currentEnemyPos + movement;
 
+    // CHANGE 2: Use mapBounds for limits
     if (newPosition.x < 0.f) newPosition.x = 0.f;
     if (newPosition.y < 0.f) newPosition.y = 0.f;
 
-    // Cast the unsigned ints to floats for the comparison
-    if (newPosition.x + static_cast<float>(enemySpriteSize.x) > static_cast<float>(windowSize.x))
-        // Cast BOTH before subtracting to avoid unsigned int math errors (like underflow)
-            newPosition.x = static_cast<float>(windowSize.x) - static_cast<float>(enemySpriteSize.x);
+    // Use mapBounds instead of window size
+    if (newPosition.x + static_cast<float>(enemySpriteSize.x) > mapBounds.x)
+        newPosition.x = mapBounds.x - static_cast<float>(enemySpriteSize.x);
 
-    if (newPosition.y + static_cast<float>(enemySpriteSize.y) > static_cast<float>(windowSize.y))
-        newPosition.y = static_cast<float>(windowSize.y) - static_cast<float>(enemySpriteSize.y);
+    if (newPosition.y + static_cast<float>(enemySpriteSize.y) > mapBounds.y)
+        newPosition.y = mapBounds.y - static_cast<float>(enemySpriteSize.y);
 
     mSprite.setPosition(newPosition);
 }
 
-void Enemy::update(sf::Time deltaTime, const sf::Window& window) {
-    updateMovementEnemy(deltaTime, window);
-
+// CHANGE 3: Update interface
+void Enemy::update(sf::Time deltaTime, const sf::Vector2f& mapBounds) {
+    updateMovementEnemy(deltaTime, mapBounds);
 }
 
 // --- operator<< (Composition of calls) ---
