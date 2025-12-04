@@ -6,8 +6,9 @@
 #include <ostream> // For std::ostream
 #include "Enemy.h"
 #include "Player.h"
-#include "Level.h" // Include new class
-#include "HUD.h"   // Include new class
+#include "Level.h"
+#include "HUD.h"
+#include "Projectile.h"
 
 class Game {
 public:
@@ -40,6 +41,7 @@ private:
 
     Player& mPlayer; // Get the singleton instance
     std::vector<std::unique_ptr<Enemy>> mEnemies;
+    std::vector<Projectile> mProjectiles;
 };
 
 #endif //GAME_H

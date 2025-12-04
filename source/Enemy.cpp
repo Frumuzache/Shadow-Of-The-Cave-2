@@ -83,7 +83,7 @@ void Enemy::updateMovementEnemy(sf::Time deltaTime, const sf::Vector2f& mapBound
 }
 
 // CHANGE 3: Update interface
-void Enemy::update(sf::Time deltaTime, const sf::Vector2f& mapBounds) {
+void Enemy::update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) {
     updateMovementEnemy(deltaTime, mapBounds);
 }
 

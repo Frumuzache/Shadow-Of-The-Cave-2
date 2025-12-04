@@ -10,8 +10,7 @@ class Player : public Entity {
 public:
     Player();
 
-    void update(sf::Time deltaTime, const sf::Vector2f& mapBounds) override;
-
+    void update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) override;
     sf::Vector2f getPlayerPosition() const;
 
     static Player& getInstance();
@@ -21,7 +20,8 @@ public:
 
     static float getAttackDamage() { return 10.f; } // Later, this comes from a Weapon
     static float getAttackRange()  { return 50.f; } // Later, this comes from a Weapon
-    ;
+
+    sf::Angle getRotation() const;
 
 
 private:

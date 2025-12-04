@@ -21,11 +21,24 @@ Player::Player()
 }
 
 // This is the main update function required by Entity
-void Player::update(sf::Time deltaTime, const sf::Vector2f& mapBounds)
+void Player::update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window)
 {
     // It just calls the specific player functions
     updateMovement(deltaTime, mapBounds);
     updateHealth(deltaTime);
+
+    // --- NEW: ROTATION LOGIC ---
+    // 1. Get Mouse Position relative to the View (Camera)
+    sf::Vector2i mouseScreenPos = sf::Mouse::getPosition(window);
+    sf::Vector2f mouseWorldPos = window.mapPixelToCoords(mouseScreenPos);
+
+    // 2. Calculate Angle
+    sf::Vector2f playerPos = mSprite.getPosition();
+    sf::Vector2u size = mTexture.getSize();
+    sf::Vector2f center = { playerPos.x + size.x / 2.f, playerPos.y + size.y / 2.f };
+
+    // Update Weapon visual to follow player
+    mWeapon.update(center, getRotation());
 }
 
 Weapon& Player::getWeapon()
@@ -105,7 +118,9 @@ void Player::updateMovement(sf::Time deltaTime, sf::Vector2f mapBounds)
 }
 
 
-
+sf::Angle Player::getRotation() const {
+    return mSprite.getRotation();
+}
 
 
 

@@ -4,6 +4,8 @@
 #include <cmath>
 #include <iostream> // For std::ostream
 #include <ostream>  // For std::ostream
+#include <memory>   // For std::unique_ptr
+
 
 // Parameterized constructor
 Game::Game(unsigned int width, unsigned int height, const std::string& title)
@@ -27,16 +29,11 @@ Game::Game(unsigned int width, unsigned int height, const std::string& title)
     // --- Example of Rule of Three ---
     std::cout << "\n--- Testing Rule of Three for Weapon ---\n";
 
-    // const Weapon testWeapon = mPlayer.getWeapon(); // Tests Copy Constructor
-    // const Weapon& testWeapon2 = testWeapon;
-    // (void)testWeapon2;
-    //
-    // std::cout << "--- End of Test ---\n" << std::endl;
-
     mWorldSize = sf::Vector2f(3000.f, 3000.f);
     mView.setSize({static_cast<float>(width), static_cast<float>(height)});
 
     mView.setCenter({static_cast<float>(width) / 2.f, static_cast<float>(height) / 2.f});
+
 
 
 }
@@ -85,16 +82,45 @@ void Game::processEvents() {
                     mEnemy->takeDamage(attackDamage);
             }
         }
+
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+
+            // Simple cooldown (optional, keeps it from streaming like a laser)
+            static sf::Clock fireClock;
+            if (fireClock.getElapsedTime().asSeconds() > mPlayer.getWeapon().getReloadTime()) {
+                fireClock.restart();
+
+                // 1. Get Aim Direction
+                sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
+                sf::Vector2f mouseWorld = mWindow.mapPixelToCoords(mousePos);
+
+                sf::Vector2f playerPos = mPlayer.getPlayerPosition();
+                sf::Vector2f playerCenter = playerPos + sf::Vector2f(static_cast<float>(mPlayer.getTextureSize().x)/2.f, static_cast<float>(mPlayer.getTextureSize().y)/2.f);
+
+                sf::Vector2f direction = mouseWorld - playerCenter;
+                // Normalize direction
+                float len = std::sqrt(direction.x*direction.x + direction.y*direction.y);
+                if (len != 0) direction /= len;
+
+                // 2. CHECK WEAPON TYPE
+                // You can use dynamic_cast or a type flag. For now, let's assume Ranged:
+
+                // Create Bullet (Speed: 1000, Damage: Weapon Damage)
+                // For Shotgun: Create 3 bullets with slightly modified directions
+                mProjectiles.emplace_back(playerCenter, direction, 1000.f, mPlayer.getWeapon().getDamage());
+            }
+        }
+
     }
 }
 
 // Function to update the game state
 void Game::update(sf::Time deltaTime) {
-    mPlayer.update(deltaTime, mWorldSize); // Update player from member
+    mPlayer.update(deltaTime, mWorldSize, mWindow); // Update player from member
     mHUD.update(mPlayer); // Update HUD with player's new state
 
     for (auto& enemy : mEnemies)
-        enemy->update(deltaTime, mWorldSize);
+        enemy->update(deltaTime, mWorldSize, mWindow);
 
     std::erase_if(mEnemies, [](const auto& enemy) {
         if (enemy->getCurrentHealth() <= 0) {
@@ -104,8 +130,31 @@ void Game::update(sf::Time deltaTime) {
         return false;
     });
 
-
     resolveEnemyCollisions();
+
+
+    for (auto& proj : mProjectiles) {
+        proj.update(deltaTime, mWorldSize);
+    }
+
+    // CHECK COLLISIONS (Bullet vs Enemy)
+    for (auto& proj : mProjectiles) {
+        if (proj.isDestroyed()) continue;
+
+        for (auto& enemy : mEnemies) {
+            if (enemy->getCurrentHealth() <= 0) continue;
+
+            if (proj.getBounds().findIntersection(enemy->getGlobalBounds())) {
+
+                enemy->takeDamage(proj.getDamage());
+                proj.destroy(); // Bullet disappears on impact
+                break; // One bullet hits one enemy
+            }
+        }
+    }
+
+    // Remove destroyed bullets
+    std::erase_if(mProjectiles, [](const Projectile& p) { return p.isDestroyed(); });
 
 
     // --- CAMERA LOGIC STARTS HERE ---

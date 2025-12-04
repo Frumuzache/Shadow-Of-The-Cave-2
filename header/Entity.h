@@ -10,7 +10,7 @@ public:
     Entity(float speed, float health);
     virtual ~Entity() = default;
 
-    virtual void update(sf::Time deltaTime, const sf::Vector2f& mapBounds) = 0;
+    virtual void update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) = 0;
 
     void render(sf::RenderWindow& window) const;
 
