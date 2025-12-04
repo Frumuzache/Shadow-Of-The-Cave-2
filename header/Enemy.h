@@ -10,6 +10,8 @@ public:
     // Parameterized constructor
     Enemy(sf::Vector2f startPosition, float speed, float health);
 
+
+    void render(sf::RenderWindow &window) const override;
     void update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) override;
     void takeDamage(float damageAmount);
     static void death(); // This being static is a bit odd, but kept it

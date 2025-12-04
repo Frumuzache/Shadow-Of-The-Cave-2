@@ -12,7 +12,7 @@ public:
 
     virtual void update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) = 0;
 
-    void render(sf::RenderWindow& window) const;
+    virtual void render(sf::RenderWindow& window) const = 0;
 
     // Helper functions (all const)
     sf::FloatRect getGlobalBounds() const;

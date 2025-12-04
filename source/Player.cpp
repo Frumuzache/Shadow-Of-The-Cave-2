@@ -27,18 +27,29 @@ void Player::update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf:
     updateMovement(deltaTime, mapBounds);
     updateHealth(deltaTime);
 
-    // --- NEW: ROTATION LOGIC ---
-    // 1. Get Mouse Position relative to the View (Camera)
+
+
+    // 1. Get Mouse Position
     sf::Vector2i mouseScreenPos = sf::Mouse::getPosition(window);
     sf::Vector2f mouseWorldPos = window.mapPixelToCoords(mouseScreenPos);
 
-    // 2. Calculate Angle
+    // 2. Calculate Center of Player (Hand position)
     sf::Vector2f playerPos = mSprite.getPosition();
     sf::Vector2u size = mTexture.getSize();
-    sf::Vector2f center = { playerPos.x + size.x / 2.f, playerPos.y + size.y / 2.f };
+    sf::Vector2f center = {
+        playerPos.x + static_cast<float>(size.x) / 2.f,
+        playerPos.y + static_cast<float>(size.y) / 2.f
+    };
 
-    // Update Weapon visual to follow player
-    mWeapon.update(center, getRotation());
+    // 3. Calculate Angle to Mouse
+    sf::Vector2f diff = mouseWorldPos - center;
+    sf::Angle angle = sf::radians(std::atan2(diff.y, diff.x));
+
+    // 4. Update Weapon
+    // CRITICAL FIX: Pass 'angle' directly to the weapon.
+    // We do NOT call mSprite.setRotation(angle) here, so the player stays upright.
+    mWeapon.update(center, angle);
+    // --- ROTATION LOGIC END ---
 }
 
 Weapon& Player::getWeapon()
@@ -120,6 +131,16 @@ void Player::updateMovement(sf::Time deltaTime, sf::Vector2f mapBounds)
 
 sf::Angle Player::getRotation() const {
     return mSprite.getRotation();
+}
+
+// This function draws the Player body (Entity) AND the Weapon
+void Player::render(sf::RenderWindow& window) const {
+    // 1. Draw the player body (using the base Entity logic)
+    Entity::render(window);
+
+    // 2. Draw the weapon on top of the player
+    // (mWeapon is a member of Player, so we must draw it manually here)
+    mWeapon.render(window);
 }
 
 

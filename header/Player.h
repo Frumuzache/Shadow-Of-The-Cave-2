@@ -11,6 +11,7 @@ public:
     Player();
 
     void update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) override;
+    void render(sf::RenderWindow& window) const override;
     sf::Vector2f getPlayerPosition() const;
 
     static Player& getInstance();

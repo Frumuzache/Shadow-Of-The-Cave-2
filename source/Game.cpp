@@ -34,7 +34,10 @@ Game::Game(unsigned int width, unsigned int height, const std::string& title)
 
     mView.setCenter({static_cast<float>(width) / 2.f, static_cast<float>(height) / 2.f});
 
-
+    Weapon rifle("AK-47", 15.f, 0.1f, 800.f, WeaponType::Ranged);
+    rifle.loadTexture("../assets/rifle.png");
+    rifle.setVisualSize(200.f, 100.f);
+    mPlayer.getWeapon() = rifle; // Assign to player
 
 }
 
@@ -83,34 +86,85 @@ void Game::processEvents() {
             }
         }
 
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
 
-            // Simple cooldown (optional, keeps it from streaming like a laser)
+
+
+
+
+        if (isButtonPressed(sf::Mouse::Button::Left)) {
             static sf::Clock fireClock;
-            if (fireClock.getElapsedTime().asSeconds() > mPlayer.getWeapon().getReloadTime()) {
+            Weapon& currentWeapon = mPlayer.getWeapon();
+
+            if (fireClock.getElapsedTime().asSeconds() > currentWeapon.getReloadTime()) {
                 fireClock.restart();
 
-                // 1. Get Aim Direction
+                // Common Calculations
+                sf::Vector2f playerPos = mPlayer.getPlayerPosition();
+                sf::Vector2u playerSize = mPlayer.getTextureSize();
+                sf::Vector2f playerCenter = { playerPos.x + playerSize.x / 2.f, playerPos.y + playerSize.y / 2.f };
+
                 sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
                 sf::Vector2f mouseWorld = mWindow.mapPixelToCoords(mousePos);
 
-                sf::Vector2f playerPos = mPlayer.getPlayerPosition();
-                sf::Vector2f playerCenter = playerPos + sf::Vector2f(static_cast<float>(mPlayer.getTextureSize().x)/2.f, static_cast<float>(mPlayer.getTextureSize().y)/2.f);
+                sf::Vector2f directionVec = mouseWorld - playerCenter;
+                float len = std::sqrt(directionVec.x * directionVec.x + directionVec.y * directionVec.y);
+                sf::Vector2f normalizedDir = (len != 0) ? (directionVec / len) : sf::Vector2f(1, 0);
 
-                sf::Vector2f direction = mouseWorld - playerCenter;
-                // Normalize direction
-                float len = std::sqrt(direction.x*direction.x + direction.y*direction.y);
-                if (len != 0) direction /= len;
+                // --- ATTACK LOGIC SWITCH ---
+                if (currentWeapon.getType() == WeaponType::Ranged) {
 
-                // 2. CHECK WEAPON TYPE
-                // You can use dynamic_cast or a type flag. For now, let's assume Ranged:
+                    // SPECIAL CASE: SHOTGUN
+                    // You can check name, or add a specific property. Let's check name for simplicity here.
+                    if (currentWeapon.getName() == "Shotgun") {
+                        // Fire 3 bullets with slight angle offset
+                        for (int i = -1; i <= 1; ++i) {
+                            float angleOffset = i * 0.15f; // Spread factor
+                            // Rotate vector logic (simplified)
+                            float sn = std::sin(angleOffset);
+                            float cs = std::cos(angleOffset);
+                            sf::Vector2f spreadDir = {
+                                normalizedDir.x * cs - normalizedDir.y * sn,
+                                normalizedDir.x * sn + normalizedDir.y * cs
+                            };
+                            mProjectiles.emplace_back(playerCenter, spreadDir, 1000.f, currentWeapon.getDamage());
+                        }
+                    }
+                    else {
+                        // PISTOL / RIFLE (Single Shot)
+                        mProjectiles.emplace_back(playerCenter, normalizedDir, 1000.f, currentWeapon.getDamage());
+                    }
 
-                // Create Bullet (Speed: 1000, Damage: Weapon Damage)
-                // For Shotgun: Create 3 bullets with slightly modified directions
-                mProjectiles.emplace_back(playerCenter, direction, 1000.f, mPlayer.getWeapon().getDamage());
+                }
+
+                else if (currentWeapon.getType() == WeaponType::Melee) {
+                    // --- MELEE LOGIC ---
+                    // Detect enemies in range and in front
+                    for (auto& enemy : mEnemies) {
+                        if (enemy->getCurrentHealth() <= 0) continue;
+
+                        sf::Vector2f enemyPos = enemy->getPosition();
+                        sf::Vector2f enemyCenter = enemyPos + sf::Vector2f(enemy->getSpriteSize().x/2.f, enemy->getSpriteSize().y/2.f);
+
+                        sf::Vector2f diff = enemyCenter - playerCenter;
+                        float dist = std::sqrt(diff.x * diff.x + diff.y * diff.y);
+
+                        // 1. Check Range
+                        if (dist <= currentWeapon.getRange()) {
+                            // 2. Check Angle (Dot Product)
+                            // If dot product > 0, enemy is roughly in front (180 degree arc)
+                            // If dot product > 0.5, enemy is in a 60 degree cone in front
+                            sf::Vector2f dirToEnemy = diff / dist;
+                            float dot = normalizedDir.x * dirToEnemy.x + normalizedDir.y * dirToEnemy.y;
+
+                            if (dot > 0.5f) {
+                                enemy->takeDamage(currentWeapon.getDamage());
+                                std::cout << "Slash hit enemy!\n";
+                            }
+                        }
+                    }
+                }
             }
         }
-
     }
 }
 
@@ -205,6 +259,10 @@ void Game::render() {
 
     for (const auto& enemy : mEnemies) {
         enemy->render(mWindow);
+    }
+
+    for (const auto& proj : mProjectiles) {
+        proj.render(mWindow);
     }
 
     mWindow.setView(mWindow.getDefaultView());

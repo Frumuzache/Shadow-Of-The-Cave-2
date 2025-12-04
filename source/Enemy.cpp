@@ -87,6 +87,10 @@ void Enemy::update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::
     updateMovementEnemy(deltaTime, mapBounds);
 }
 
+void Enemy::render(sf::RenderWindow &window) const {
+    window.draw(mSprite);
+}
+
 // --- operator<< (Composition of calls) ---
 std::ostream& operator<<(std::ostream& os, const Enemy& enemy) {
     // 1. Call Entity::operator<<
