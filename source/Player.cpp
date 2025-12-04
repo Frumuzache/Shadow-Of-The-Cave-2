@@ -86,8 +86,8 @@ void Player::updateMovement(sf::Time deltaTime, sf::Vector2f mapBounds)
 
     // Definim limita HARDCODED la 3000 (sau o primești ca parametru)
     // Trebuie să fie fix cât ai pus în Level.cpp!
-    float mapLimitX = 3000.f;
-    float mapLimitY = 3000.f;
+    float mapLimitX = mapBounds.x;
+    float mapLimitY = mapBounds.y;
 
     // Stânga și Sus (Nu trecem de 0)
     if (position.x < 0.f) position.x = 0.f;

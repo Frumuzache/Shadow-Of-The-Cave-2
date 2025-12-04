@@ -114,8 +114,8 @@ void Game::update(sf::Time deltaTime) {
 
     // Calculate the center of the player sprite to center the camera accurately
     sf::Vector2u playerSize = mPlayer.getTextureSize();
-    targetPos.x += playerSize.x / 2.f;
-    targetPos.y += playerSize.y / 2.f;
+    targetPos.x += static_cast<float>(playerSize.x) / 2.f;
+    targetPos.y += static_cast<float>(playerSize.y) / 2.f;
 
     float halfWidth = viewSize.x / 2.0f;
     float halfHeight = viewSize.y / 2.0f;
@@ -167,7 +167,7 @@ void Game::render() {
 
 
 
-void Game::resolveEnemyCollisions() {
+void Game::resolveEnemyCollisions() const {
     // Loop through all unique pairs of enemies
     for (size_t i = 0; i < mEnemies.size(); ++i) {
         for (size_t j = i + 1; j < mEnemies.size(); ++j) {
@@ -179,15 +179,15 @@ void Game::resolveEnemyCollisions() {
             sf::Vector2f posA = enemyA->getPosition();
             sf::Vector2u sizeA = enemyA->getSpriteSize();
             sf::Vector2f centerA = {
-                posA.x + sizeA.x / 2.f,
-                posA.y + sizeA.y / 2.f
+                posA.x + static_cast<float>(sizeA.x) / 2.f,
+                posA.y + static_cast<float>(sizeA.y) / 2.f
             };
 
             sf::Vector2f posB = enemyB->getPosition();
             sf::Vector2u sizeB = enemyB->getSpriteSize();
             sf::Vector2f centerB = {
-                posB.x + sizeB.x / 2.f,
-                posB.y + sizeB.y / 2.f
+                posB.x + static_cast<float>(sizeB.x) / 2.f,
+                posB.y + static_cast<float>(sizeB.y) / 2.f
             };
 
             // 2. Check Distance
@@ -196,7 +196,7 @@ void Game::resolveEnemyCollisions() {
 
             // Define a minimum distance based on enemy size (approx. radius)
             // Using 80% of the width ensures they don't overlap too much but don't gap too wide
-            float minDistance = (sizeA.x + sizeB.x) * 0.4f;
+            float minDistance = (static_cast<float>(sizeA.x + sizeB.x)) * 0.4f;
 
             // 3. Resolve Collision (Push them apart)
             if (distance < minDistance) {
