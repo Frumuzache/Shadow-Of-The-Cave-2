@@ -45,8 +45,6 @@ private:
     void loadMeleeWeapon();
     void loadThrowableWeapon();
 
-    // Member Variables
-    float mMovementSpeed;
 
     // Inventory
     RangedWeapon mRangedWeapon;
