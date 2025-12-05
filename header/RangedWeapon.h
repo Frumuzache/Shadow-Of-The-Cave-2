@@ -15,8 +15,8 @@ public:
     void load();
 
 private:
-    int mMaxAmmo;
-    int mCurrentAmmo;
+    // int mMaxAmmo;
+    // int mCurrentAmmo;
 };
 
 // Operator overload for printing

@@ -3,16 +3,12 @@
 #include <exception>
 
 RangedWeapon::RangedWeapon()
-    : Weapon("Basic Bow", 10.f, 1.5f, 300.f),
-      mMaxAmmo(20),
-      mCurrentAmmo(20) {
-}
+    : Weapon("Basic Bow", 10.f, 1.5f, 300.f)
+      {}
 
 RangedWeapon::RangedWeapon(const std::string& name, float damage, float reloadTime, float range, int maxAmmo)
-    : Weapon(name, damage, reloadTime, range),
-      mMaxAmmo(maxAmmo),
-      mCurrentAmmo(maxAmmo) {
-}
+    : Weapon(name, damage, reloadTime, range)
+      {}
 
 std::unique_ptr<Weapon> RangedWeapon::clone() const {
     return std::make_unique<RangedWeapon>(*this);
