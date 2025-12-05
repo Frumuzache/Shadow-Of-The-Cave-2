@@ -90,7 +90,7 @@ WeaponType Weapon::getType() const { return type; }
 float Weapon::getDamage() const { return damage; }
 float Weapon::getReloadTime() const { return reloadTime; }
 float Weapon::getRange() const { return range; }
-std::string Weapon::getName() const { return name; }
+const std::string& Weapon::getName() const { return name; }
 void Weapon::setScale(float scale) { mSprite.setScale({scale, scale}); }
 
 std::ostream& operator<<(std::ostream& os, const Weapon& weapon) {

@@ -78,7 +78,7 @@ void Game::handleInput() {
 // 3. Logic for Shooting Logic
 void Game::handleShooting() {
     static sf::Clock fireClock;
-    Weapon& currentWeapon = mPlayer.getWeapon();
+    const Weapon& currentWeapon = mPlayer.getWeapon();
 
     // Check Cooldown
     if (fireClock.getElapsedTime().asSeconds() < currentWeapon.getReloadTime()) {
@@ -130,7 +130,7 @@ void Game::handleShooting() {
 // 4. Logic for Melee Attacks
 void Game::handleMeleeAttack() {
     static sf::Clock meleeClock;
-    Weapon& currentWeapon = mPlayer.getWeapon();
+    const Weapon& currentWeapon = mPlayer.getWeapon();
 
     if (currentWeapon.getType() != WeaponType::Melee) return;
     if (meleeClock.getElapsedTime().asSeconds() < currentWeapon.getReloadTime()) return;
@@ -152,9 +152,9 @@ void Game::handleMeleeAttack() {
     for (const auto& enemyPtr : mEnemies) {
         if (enemyPtr->getCurrentHealth() <= 0) continue;
 
-        sf::Vector2f enemyPos = enemyPtr->getPosition();
-        sf::Vector2u eSize = enemyPtr->getSpriteSize();
-        sf::Vector2f enemyCenter = enemyPos + sf::Vector2f(static_cast<float>(eSize.x)/2.f, static_cast<float>(eSize.y)/2.f);
+        const sf::Vector2f enemyPos = enemyPtr->getPosition();
+        const sf::Vector2u eSize = enemyPtr->getSpriteSize();
+        const sf::Vector2f enemyCenter = enemyPos + sf::Vector2f(static_cast<float>(eSize.x)/2.f, static_cast<float>(eSize.y)/2.f);
 
         sf::Vector2f diff = enemyCenter - playerCenter;
         float dist = std::sqrt(diff.x * diff.x + diff.y * diff.y);
@@ -182,7 +182,7 @@ void Game::update(sf::Time deltaTime) {
     mPlayer.update(deltaTime, mWorldSize, mWindow);
     mHUD.update(mPlayer);
 
-    for (auto& enemy : mEnemies) {
+    for (const auto& enemy : mEnemies) {
         enemy->update(deltaTime, mWorldSize, mWindow);
     }
 

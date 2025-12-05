@@ -32,7 +32,7 @@ public:
     float getReloadTime() const;
     WeaponType getType() const;
     float getRange() const;
-    std::string getName() const;
+    const std::string& getName() const;
 
     void setVisualSize(float width, float height);
 
