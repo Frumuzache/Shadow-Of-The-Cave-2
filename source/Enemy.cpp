@@ -6,18 +6,18 @@
 
 // Default Constructor
 Enemy::Enemy()
-    : Entity(80.f, 50.f),
+    : Entity(200.f, 50.f),
       mDirection(0.f, 0.f),
       initialPosition(100.f, 100.f),
       // Initialize private weapon: Name, Damage, Cooldown, Range
-      mWeapon("Zombie Claws", 10.f, 1.0f, 60.f)
+      mWeapon("Zombie Claws", 10.f, 1.0f, 100.f)
 {
     loadAssets();
     mSprite.setPosition(initialPosition);
 }
 
 // Parameterized Constructor
-Enemy::Enemy(sf::Vector2f startPosition, float speed, float health)
+Enemy::Enemy(const sf::Vector2f startPosition, const float speed, const float health)
     : Entity(speed, health),
       mDirection(0.f, 0.f),
       initialPosition(startPosition),
@@ -35,7 +35,7 @@ void Enemy::loadAssets() {
 }
 
 // Main Update Loop
-void Enemy::update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) {
+void Enemy::update(const sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) {
     // 1. Handle Movement
     updateMovementEnemy(deltaTime, mapBounds);
 

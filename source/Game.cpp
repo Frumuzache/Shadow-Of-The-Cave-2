@@ -20,9 +20,9 @@ Game::Game(unsigned int width, unsigned int height, const std::string& title)
     mWindow.setFramerateLimit(120);
 
     // Initialize first Enemies
-    mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(300.f, 100.f), 80.f, 50.f));
-    mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(600.f, 400.f), 80.f, 50.f));
-    mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(900.f, 700.f), 80.f, 50.f));
+    mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(300.f, 100.f), 175.f, 75.f));
+    mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(600.f, 400.f), 175.f, 75.f));
+    mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(900.f, 700.f), 175.f, 75.f));
 
     // Initialize World & View
     mWorldSize = sf::Vector2f(3000.f, 3000.f);
@@ -318,7 +318,7 @@ void Game::spawnOneEnemy() {
         attempts++;
     }
 
-    mEnemies.push_back(std::make_unique<Enemy>(spawnPos, 80.f, 50.f));
+    mEnemies.push_back(std::make_unique<Enemy>(spawnPos, 175.f, 75.f));
 }
 
 std::ostream& operator<<(std::ostream& os, const Game& game) {
