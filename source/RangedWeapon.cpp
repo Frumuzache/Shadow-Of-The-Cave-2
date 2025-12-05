@@ -6,7 +6,7 @@ RangedWeapon::RangedWeapon()
     : Weapon("Basic Bow", 10.f, 1.5f, 300.f)
       {}
 
-RangedWeapon::RangedWeapon(const std::string& name, float damage, float reloadTime, float range, int maxAmmo)
+RangedWeapon::RangedWeapon(const std::string& name, const float damage, const float reloadTime, const float range)
     : Weapon(name, damage, reloadTime, range)
       {}
 
@@ -17,7 +17,7 @@ std::unique_ptr<Weapon> RangedWeapon::clone() const {
 void RangedWeapon::load() {
     try {
 
-        *this = RangedWeapon("AK-47", 15.f, 0.1f, 800.f, 30);
+        *this = RangedWeapon("AK-47", 15.f, 0.1f, 800.f);
         loadTexture("../assets/rifle.png");
         setVisualSize(200.f, 100.f);
         std::cout << "RangedWeapon loaded successfully.\n";

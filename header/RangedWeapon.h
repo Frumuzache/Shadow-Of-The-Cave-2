@@ -4,10 +4,10 @@
 #include "Weapon.h"
 #include <SFML/Graphics.hpp>
 
-class RangedWeapon : public Weapon {
+class RangedWeapon final : public Weapon {
 public:
     RangedWeapon();
-    RangedWeapon(const std::string& name, float damage, float reloadTime, float range, int maxAmmo);
+    RangedWeapon(const std::string& name, float damage, float reloadTime, float range);
 
     std::unique_ptr<Weapon> clone() const override;
 
