@@ -3,7 +3,13 @@
 #include <iostream>
 #include <SFML/System/Angle.hpp>
 
-Player::Player() {
+
+Player::Player()
+    : mRangedWeapon(),
+      mMeleeWeapon(),
+      // Initialize with dummy values, actual setup happens in loadThrowableWeapon
+      mThrowableWeapon("Frag Grenade", 0.f, 0.f, 0.f, 0.f, 0.f, mGrenadeTexture)
+{
     mMovementSpeed = 150.f;
 
     if (!mTexture.loadFromFile("../assets/player.png"))
@@ -14,22 +20,38 @@ Player::Player() {
 
     mSprite.setTexture(mTexture, true);
     mSprite.setPosition({400.f, 300.f});
+
+    // --- Load Inventory ---
+    loadRangedWeapon();
+    loadMeleeWeapon();
+    loadThrowableWeapon();
 }
 
-// Main Update Loop
+void Player::loadRangedWeapon() {
+    // Delegate to the class
+    mRangedWeapon.load();
+}
+
+void Player::loadMeleeWeapon() {
+    // Delegate to the class
+    mMeleeWeapon.load();
+}
+
+void Player::loadThrowableWeapon() {
+    // Delegate to the class, passing the texture storage that Player owns
+    mThrowableWeapon.load(mGrenadeTexture);
+}
+
 void Player::update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) {
     updateMovement(deltaTime, mapBounds);
     updateRotation(window);
     updateHealth(deltaTime);
 }
 
-// Logic: Rotation (Aiming at Mouse)
 void Player::updateRotation(const sf::RenderWindow& window) {
-    // 1. Get Mouse Position relative to the View
     sf::Vector2i mouseScreenPos = sf::Mouse::getPosition(window);
     sf::Vector2f mouseWorldPos = window.mapPixelToCoords(mouseScreenPos);
 
-    // 2. Calculate Center of Player (Hand position)
     sf::Vector2f playerPos = mSprite.getPosition();
     sf::Vector2u size = mTexture.getSize();
     sf::Vector2f center = {
@@ -37,15 +59,13 @@ void Player::updateRotation(const sf::RenderWindow& window) {
         playerPos.y + static_cast<float>(size.y) / 2.f
     };
 
-    // 3. Calculate Angle
     sf::Vector2f diff = mouseWorldPos - center;
     sf::Angle angle = sf::radians(std::atan2(diff.y, diff.x));
 
-    // 4. Update Weapon (Pass angle to weapon, don't rotate player body)
-    mWeapon.update(center, angle);
+    mRangedWeapon.update(center, angle);
+    mMeleeWeapon.update(center, angle);
 }
 
-// Logic: Movement (WASD + Borders)
 void Player::updateMovement(sf::Time deltaTime, sf::Vector2f mapBounds) {
     sf::Vector2f movement(0.f, 0.f);
 
@@ -62,7 +82,6 @@ void Player::updateMovement(sf::Time deltaTime, sf::Vector2f mapBounds) {
 
     mSprite.move(movement);
 
-    // Border Checks
     sf::Vector2f pos = mSprite.getPosition();
     sf::Vector2u size = mTexture.getSize();
 
@@ -74,34 +93,26 @@ void Player::updateMovement(sf::Time deltaTime, sf::Vector2f mapBounds) {
     mSprite.setPosition(pos);
 }
 
-// Render
 void Player::render(sf::RenderWindow& window) const {
-    Entity::render(window); // Draw Body
-    mWeapon.render(window); // Draw Weapon
+    Entity::render(window);
+    mRangedWeapon.render(window);
 }
 
-// Getters & Singleton
 Player& Player::getInstance() {
     static Player instance;
     return instance;
 }
 
-Weapon& Player::getWeapon() { return mWeapon; }
-sf::Vector2f Player::getPlayerPosition() const { return mSprite.getPosition(); }
-sf::Vector2u Player::getTextureSize() const { return mTexture.getSize(); }
-sf::Angle Player::getRotation() const { return mSprite.getRotation(); }
-
+RangedWeapon& Player::getRangedWeapon() { return mRangedWeapon; }
+MeleeWeapon& Player::getMeleeWeapon() { return mMeleeWeapon; }
+ThrowableWeapon& Player::getThrowableWeapon() { return mThrowableWeapon; }
+Weapon& Player::getActiveWeapon() { return mRangedWeapon; }
 void Player::updateHealth(sf::Time deltaTime) { (void)deltaTime; }
 
-
-
 void Player::takeDamage(float damage) {
-    // Accessing protected variable 'currentHealth' from Entity class
     if (currentHealth > 0) {
         currentHealth -= damage;
-
         if (currentHealth < 0) currentHealth = 0;
-
         std::cout << "Player took damage! Current HP: " << currentHealth << "\n";
     }
 }
@@ -109,3 +120,15 @@ void Player::takeDamage(float damage) {
 bool Player::isDead() const {
     return currentHealth <= 0;
 }
+
+sf::Vector2f Player::getPlayerPosition() const {
+    return mSprite.getPosition();
+}
+
+sf::Vector2u Player::getTextureSize() const {
+    return mTexture.getSize();
+}
+
+// sf::Angle Player::getRotation() const {
+//     return mRangedWeapon.getRotation();
+// }

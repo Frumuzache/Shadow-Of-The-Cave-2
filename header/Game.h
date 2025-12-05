@@ -3,61 +3,69 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
-#include <ostream> // For std::ostream
-#include "Enemy.h"
+#include <vector>
 #include "Player.h"
-#include "Level.h"
 #include "HUD.h"
+#include "Level.h"
+#include "Enemy.h"
 #include "Projectile.h"
+#include "ThrowableWeapon.h"
 
 class Game {
 public:
-    // Parameterized constructor
     Game(unsigned int width, unsigned int height, const std::string& title);
-
     void run();
 
-    // sf::Vector2u getWindowSize() const; // Made const
-
-    // operator<< for display
+private:
     friend std::ostream& operator<<(std::ostream& os, const Game& game);
 
-private:
     void processEvents();
     void update(sf::Time deltaTime);
     void render();
-    void resolveEnemyCollisions() const;
 
     void handleInput();
     void handleShooting();
     void handleMeleeAttack();
+
+    // Grenade Input Handler
+    void handleGrenadeThrow();
+
     void updateCamera();
     void updateProjectiles(sf::Time deltaTime);
-    void checkCollisions();
-    void cleanupEntities();
-    bool mIsGameOver;
 
-    sf::Clock mSurvivalClock;    // Cât timp a rezistat jucătorul (pentru dificultate)
-    float mSpawnTimer;           // Cât timp a trecut de la ultimul spawn
-    float mSpawnInterval;        // Cât așteptăm până la următorul spawn (se va micșora)
+    // Grenade Update Logic
+    void updateGrenades(sf::Time deltaTime);
 
-    void handleEnemySpawning(sf::Time deltaTime); // Funcție nouă helper
+    void handleEnemySpawning(sf::Time deltaTime);
     void spawnOneEnemy();
+    void checkCollisions();
+    void resolveEnemyCollisions() const;
+    void cleanupEntities();
 
-
-    // Composition: Game "has-a" window, clock, level, hud, player, and enemies
+    // Member Variables
     sf::RenderWindow mWindow;
-    sf::Clock mClock;
-
     sf::View mView;
     sf::Vector2f mWorldSize;
 
-    Level mLevel; // Replaces background texture/sprite
-    HUD mHUD;     // New composed object
+    Level mLevel;
+    HUD mHUD;
+    Player& mPlayer;
 
-    Player& mPlayer; // Get the singleton instance
     std::vector<std::unique_ptr<Enemy>> mEnemies;
     std::vector<Projectile> mProjectiles;
+
+    // --- Added missing variables to fix Game.cpp errors ---
+    std::vector<std::unique_ptr<ThrowableWeapon>> mActiveGrenades;
+    sf::Clock mGrenadeCooldown;
+    sf::Texture mGrenadeTexture;
+
+    sf::Clock mClock;
+    sf::Clock mSurvivalClock;
+    float mSpawnTimer;
+    float mSpawnInterval;
+    bool mIsGameOver;
 };
 
-#endif //GAME_H
+std::ostream& operator<<(std::ostream& os, const Game& game);
+
+#endif

@@ -1,39 +1,39 @@
 #include "../header/RangedWeapon.h"
-#include <ostream>
+#include <iostream>
+#include <exception>
 
-// Constructorul implicit apelează constructorul cu parametri al clasei de bază
 RangedWeapon::RangedWeapon()
     : Weapon("Basic Bow", 10.f, 1.5f, 300.f),
       mMaxAmmo(20),
       mCurrentAmmo(20) {
 }
 
-// Constructorul cu parametri apelează constructorul clasei de bază (Weapon)
 RangedWeapon::RangedWeapon(const std::string& name, float damage, float reloadTime, float range, int maxAmmo)
     : Weapon(name, damage, reloadTime, range),
       mMaxAmmo(maxAmmo),
       mCurrentAmmo(maxAmmo) {
 }
 
-// void RangedWeapon::reload() {
-//     mCurrentAmmo = mMaxAmmo;
-//     // Aici s-ar putea adăuga și un timp de reîncărcare
-// }
+std::unique_ptr<Weapon> RangedWeapon::clone() const {
+    return std::make_unique<RangedWeapon>(*this);
+}
 
-// int RangedWeapon::getCurrentAmmo() const {
-//     return mCurrentAmmo;
-// }
+void RangedWeapon::load() {
+    try {
 
-// int RangedWeapon::getMaxAmmo() const {
-//     return mMaxAmmo;
-// }
+        *this = RangedWeapon("AK-47", 15.f, 0.1f, 800.f, 30);
+        loadTexture("../assets/rifle.png");
+        setVisualSize(200.f, 100.f);
+        std::cout << "RangedWeapon loaded successfully.\n";
+    }
 
-// Implementarea operatorului<<
+    catch (const std::exception& e) {
+        std::cerr << "Error loading RangedWeapon: " << e.what() << "\n";
+    }
+}
+
 std::ostream& operator<<(std::ostream& os, const RangedWeapon& weapon) {
-    // Apelăm operatorul<< al clasei de bază (Weapon)
     os << static_cast<const Weapon&>(weapon);
-
-    // Adăugăm informații specifice acestei clase
-    os << " [Type: Ranged, Ammo: " << weapon.mCurrentAmmo << "/" << weapon.mMaxAmmo << "]";
+    os << " [Type: Ranged]";
     return os;
 }

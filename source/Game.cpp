@@ -4,18 +4,18 @@
 #include <cmath>
 #include <iostream>
 #include <memory>
-#include <algorithm> // For std::remove_if
+#include <algorithm>
 #include <random>
 
 Game::Game(unsigned int width, unsigned int height, const std::string& title)
-    : mIsGameOver(false),
-      mSpawnTimer(0.f),
-      mSpawnInterval(3.0f),
-      mWindow(sf::VideoMode({width, height}), title),
-      mClock{},
+    : mWindow(sf::VideoMode({width, height}), title),
       mLevel("../assets/background.png", sf::Vector2f(3000.f, 3000.f)),
       mHUD("../assets/arial.ttf"),
-      mPlayer(Player::getInstance()) // Initialize Game Over flag
+      mPlayer(Player::getInstance()),
+      mClock{},
+      mSpawnTimer(0.f),
+      mSpawnInterval(3.0f),
+      mIsGameOver(false)
 {
     mWindow.setFramerateLimit(120);
 
@@ -29,11 +29,6 @@ Game::Game(unsigned int width, unsigned int height, const std::string& title)
     mView.setSize({static_cast<float>(width), static_cast<float>(height)});
     mView.setCenter({static_cast<float>(width) / 2.f, static_cast<float>(height) / 2.f});
 
-    // Initialize player Weapon
-    Weapon rifle("AK-47", 15.f, 0.1f, 800.f, WeaponType::Ranged);
-    rifle.loadTexture("../assets/rifle.png");
-    rifle.setVisualSize(200.f, 100.f);
-    mPlayer.getWeapon() = rifle;
 
     std::cout << "Game created successfully.\n";
 }
@@ -48,7 +43,6 @@ void Game::run() {
 }
 
 void Game::processEvents() {
-    // Ensure we use the game view for any input processing here if needed
     mWindow.setView(mView);
 
     while (const std::optional event = mWindow.pollEvent()) {
@@ -73,14 +67,17 @@ void Game::handleInput() {
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
         handleShooting();
     }
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
+        handleGrenadeThrow();
+    }
 }
 
 void Game::handleShooting() {
     static sf::Clock fireClock;
-    const Weapon& currentWeapon = mPlayer.getWeapon();
+
+    const Weapon& currentWeapon = mPlayer.getRangedWeapon();
 
     if (fireClock.getElapsedTime().asSeconds() < currentWeapon.getReloadTime()) return;
-    if (currentWeapon.getType() != WeaponType::Ranged) return;
 
     fireClock.restart();
 
@@ -103,11 +100,10 @@ void Game::handleShooting() {
 
 void Game::handleMeleeAttack() {
     static sf::Clock meleeClock;
-    const Weapon& currentWeapon = mPlayer.getWeapon();
 
-    if (currentWeapon.getType() != WeaponType::Melee) return;
+    const Weapon& currentWeapon = mPlayer.getMeleeWeapon();
+
     if (meleeClock.getElapsedTime().asSeconds() < currentWeapon.getReloadTime()) return;
-
     meleeClock.restart();
 
     sf::Vector2f playerPos = mPlayer.getPlayerPosition();
@@ -141,12 +137,27 @@ void Game::handleMeleeAttack() {
     }
 }
 
-// 5. Main Update Loop
+void Game::handleGrenadeThrow() {
+    if (mGrenadeCooldown.getElapsedTime().asSeconds() < 2.0f) return;
+    mGrenadeCooldown.restart();
+
+    sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
+    sf::Vector2f mouseWorld = mWindow.mapPixelToCoords(mousePos, mView);
+
+    // Clone from Player's inventory
+    std::unique_ptr<Weapon> clonedWeapon = mPlayer.getThrowableWeapon().clone();
+
+    auto grenade = std::unique_ptr<ThrowableWeapon>(dynamic_cast<ThrowableWeapon*>(clonedWeapon.release()));
+
+    if (grenade) {
+        grenade->throwAt(mouseWorld);
+        mActiveGrenades.push_back(std::move(grenade));
+    }
+}
+
 void Game::update(sf::Time deltaTime) {
-    // Check for Game Over Condition
     if (mPlayer.isDead()) {
         mIsGameOver = true;
-        // We return early so enemies stop moving and physics freezes
         return;
     }
 
@@ -162,6 +173,8 @@ void Game::update(sf::Time deltaTime) {
     }
 
     updateProjectiles(deltaTime);
+    updateGrenades(deltaTime);
+
     resolveEnemyCollisions();
     checkCollisions();
     cleanupEntities();
@@ -198,12 +211,54 @@ void Game::checkCollisions() {
     for (auto& proj : mProjectiles) {
         if (proj.isDestroyed()) continue;
 
-        for (auto& enemy : mEnemies) {
+        for (const auto& enemy : mEnemies) {
             if (enemy->getCurrentHealth() <= 0) continue;
             if (proj.getBounds().findIntersection(enemy->getGlobalBounds())) {
                 enemy->takeDamage(proj.getDamage());
                 proj.destroy();
                 break;
+            }
+        }
+    }
+}
+
+void Game::updateGrenades(sf::Time deltaTime) {
+    for (auto& grenade : mActiveGrenades) {
+        grenade->update(deltaTime);
+
+        if (grenade->shouldDealDamage()) {
+            sf::Vector2f explosionPos = grenade->getPosition();
+            float radius = grenade->getExplosionRadius();
+            float damage = grenade->getDamage();
+
+            std::cout << "BOOM! Damage: " << damage << " Radius: " << radius << "\n";
+
+            for (auto& enemy : mEnemies) {
+                if (enemy->getCurrentHealth() <= 0) continue;
+
+                sf::Vector2f ePos = enemy->getPosition();
+                sf::Vector2u eSize = enemy->getSpriteSize();
+                sf::Vector2f eCenter = ePos + sf::Vector2f(static_cast<float>(eSize.x)/2.f, static_cast<float>(eSize.y)/2.f);
+
+                float dx = eCenter.x - explosionPos.x;
+                float dy = eCenter.y - explosionPos.y;
+                float dist = std::sqrt(dx*dx + dy*dy);
+
+                if (dist <= radius) {
+                    enemy->takeDamage(damage);
+                }
+            }
+
+            sf::Vector2f pPos = mPlayer.getPlayerPosition();
+            sf::Vector2u pSize = mPlayer.getTextureSize();
+            sf::Vector2f pCenter = pPos + sf::Vector2f(static_cast<float>(pSize.x)/2.f, static_cast<float>(pSize.y)/2.f);
+
+            float pdx = pCenter.x - explosionPos.x;
+            float pdy = pCenter.y - explosionPos.y;
+            float pDist = std::sqrt(pdx*pdx + pdy*pdy);
+
+            if (pDist <= radius) {
+                mPlayer.takeDamage(damage);
             }
         }
     }
@@ -220,6 +275,10 @@ void Game::cleanupEntities() {
 
     std::erase_if(mProjectiles, [](const Projectile& p) {
         return p.isDestroyed();
+    });
+
+    std::erase_if(mActiveGrenades, [](const auto& g) {
+        return g->isFinished();
     });
 }
 
@@ -250,31 +309,24 @@ void Game::resolveEnemyCollisions() const {
     }
 }
 
-// 10. Render Logic
 void Game::render() {
     mWindow.clear(sf::Color::Black);
 
-    // 1. Draw Game World (Using Camera View)
     mWindow.setView(mView);
     mLevel.render(mWindow);
 
-    // --- CHANGED: Only Draw Player if Alive ---
     if (!mPlayer.isDead()) {
         mPlayer.render(mWindow);
     }
-    // ------------------------------------------
 
     for (const auto& enemy : mEnemies) enemy->render(mWindow);
     for (const auto& proj : mProjectiles) proj.render(mWindow);
+    for (const auto& g : mActiveGrenades) g->render(mWindow);
 
-    // 2. Draw HUD (Using Default/Screen View)
     mWindow.setView(mWindow.getDefaultView());
     mHUD.render(mWindow);
 
-    // 3. Draw Game Over Text (Using Default/Screen View)
     if (mIsGameOver) {
-        // We use default view so the text is centered on the monitor,
-        // not somewhere in the game world
         mWindow.setView(mWindow.getDefaultView());
         mHUD.renderGameOver(mWindow);
     }

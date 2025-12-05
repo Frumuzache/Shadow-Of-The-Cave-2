@@ -1,21 +1,19 @@
 #ifndef MELEEWEAPON_H
 #define MELEEWEAPON_H
+
 #include "Weapon.h"
 
-class MeleeWeapon final : public Weapon {
+class MeleeWeapon : public Weapon {
 public:
-    // Constructor implicit
     MeleeWeapon();
-
-    // Constructor cu parametri
     MeleeWeapon(const std::string& name, float damage, float reloadTime, float range);
 
-    // Suprascriem operatorul<< pentru afișare
-    friend std::ostream& operator<<(std::ostream& os, const MeleeWeapon& weapon);
+    std::unique_ptr<Weapon> clone() const override;
 
-private:
-    // Aici ar putea fi adăugate proprietăți specifice
-    // de ex: float swingSpeed;
+    // New load function
+    void load();
 };
 
-#endif //MELEEWEAPON_H
+std::ostream& operator<<(std::ostream& os, const MeleeWeapon& weapon);
+
+#endif

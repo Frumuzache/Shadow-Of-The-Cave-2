@@ -18,7 +18,8 @@ public:
 
     void loadTexture(const std::string& path);
     void update(sf::Vector2f playerPos, sf::Angle rotationAngle);
-    void render(sf::RenderWindow& window) const;
+
+    virtual void render(sf::RenderWindow& window) const;
 
     // 1. Destructor
     virtual ~Weapon();
@@ -37,6 +38,8 @@ public:
     void setVisualSize(float width, float height);
 
     void setScale(float scale);
+
+    virtual std::unique_ptr<Weapon> clone() const = 0;
 
     // float attack() const;
 
