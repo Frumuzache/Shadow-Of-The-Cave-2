@@ -25,6 +25,8 @@ void Enemy::loadAssets() {
 
 void Enemy::update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) {
     updateMovementEnemy(deltaTime, mapBounds);
+    /// solve tempory issue of unsused parameter
+    (void)window;
 }
 
 void Enemy::updateMovementEnemy(sf::Time deltaTime, const sf::Vector2f& mapBounds) {
