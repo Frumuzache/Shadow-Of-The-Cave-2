@@ -5,17 +5,21 @@
 #include <iostream>
 #include <memory>
 #include <algorithm> // For std::remove_if
+#include <random>
 
 Game::Game(unsigned int width, unsigned int height, const std::string& title)
-    : mWindow(sf::VideoMode({width, height}), title),
+    : mIsGameOver(false),
+      mSpawnTimer(0.f),
+      mSpawnInterval(3.0f),
+      mWindow(sf::VideoMode({width, height}), title),
       mClock{},
       mLevel("../assets/background.png", sf::Vector2f(3000.f, 3000.f)),
       mHUD("../assets/arial.ttf"),
-      mPlayer(Player::getInstance())
+      mPlayer(Player::getInstance()) // Initialize Game Over flag
 {
     mWindow.setFramerateLimit(120);
 
-    // Initialize Enemies
+    // Initialize first Enemies
     mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(300.f, 100.f), 80.f, 50.f));
     mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(600.f, 400.f), 80.f, 50.f));
     mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(900.f, 700.f), 80.f, 50.f));
@@ -25,10 +29,10 @@ Game::Game(unsigned int width, unsigned int height, const std::string& title)
     mView.setSize({static_cast<float>(width), static_cast<float>(height)});
     mView.setCenter({static_cast<float>(width) / 2.f, static_cast<float>(height) / 2.f});
 
-    // Initialize Weapon
+    // Initialize player Weapon
     Weapon rifle("AK-47", 15.f, 0.1f, 800.f, WeaponType::Ranged);
     rifle.loadTexture("../assets/rifle.png");
-    rifle.setVisualSize(200.f, 100.f); // Reasonable size for the gun
+    rifle.setVisualSize(200.f, 100.f);
     mPlayer.getWeapon() = rifle;
 
     std::cout << "Game created successfully.\n";
@@ -43,7 +47,6 @@ void Game::run() {
     }
 }
 
-// 1. Process Window Events (Close, Resize, etc.)
 void Game::processEvents() {
     // Ensure we use the game view for any input processing here if needed
     mWindow.setView(mView);
@@ -58,41 +61,29 @@ void Game::processEvents() {
         }
     }
 
-    // Handle Continuous Input (Movement, Shooting) separate from the event loop
-    handleInput();
+    if (!mIsGameOver) {
+        handleInput();
+    }
 }
 
-// 2. Handle Real-time Input (Keyboard/Mouse)
 void Game::handleInput() {
-    // Melee Attack (Space)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
         handleMeleeAttack();
     }
-
-    // Shooting (Left Click)
-    if (isButtonPressed(sf::Mouse::Button::Left)) {
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
         handleShooting();
     }
 }
 
-// 3. Logic for Shooting Logic
 void Game::handleShooting() {
     static sf::Clock fireClock;
     const Weapon& currentWeapon = mPlayer.getWeapon();
 
-    // Check Cooldown
-    if (fireClock.getElapsedTime().asSeconds() < currentWeapon.getReloadTime()) {
-        return;
-    }
-
-    // Only fire if it's a Ranged weapon
-    if (currentWeapon.getType() != WeaponType::Ranged) {
-        return;
-    }
+    if (fireClock.getElapsedTime().asSeconds() < currentWeapon.getReloadTime()) return;
+    if (currentWeapon.getType() != WeaponType::Ranged) return;
 
     fireClock.restart();
 
-    // Calculate Firing positions
     sf::Vector2f playerPos = mPlayer.getPlayerPosition();
     sf::Vector2u playerSize = mPlayer.getTextureSize();
     sf::Vector2f playerCenter = {
@@ -100,7 +91,6 @@ void Game::handleShooting() {
         playerPos.y + static_cast<float>(playerSize.y) / 2.f
     };
 
-    // Calculate Mouse Direction relative to world
     sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
     sf::Vector2f mouseWorld = mWindow.mapPixelToCoords(mousePos);
     sf::Vector2f directionVec = mouseWorld - playerCenter;
@@ -108,26 +98,9 @@ void Game::handleShooting() {
     float len = std::sqrt(directionVec.x * directionVec.x + directionVec.y * directionVec.y);
     sf::Vector2f normalizedDir = (len != 0) ? (directionVec / len) : sf::Vector2f(1, 0);
 
-    // Spawn Projectile(s)
-    if (currentWeapon.getName() == "Shotgun") {
-        // Shotgun Spread Logic
-        for (int i = -1; i <= 1; ++i) {
-            float angleOffset = static_cast<float>(i) * 0.15f;
-            float sn = std::sin(angleOffset);
-            float cs = std::cos(angleOffset);
-            sf::Vector2f spreadDir = {
-                normalizedDir.x * cs - normalizedDir.y * sn,
-                normalizedDir.x * sn + normalizedDir.y * cs
-            };
-            mProjectiles.emplace_back(playerCenter, spreadDir, 1000.f, currentWeapon.getDamage());
-        }
-    } else {
-        // Standard Fire
-        mProjectiles.emplace_back(playerCenter, normalizedDir, 1000.f, currentWeapon.getDamage());
-    }
+    mProjectiles.emplace_back(playerCenter, normalizedDir, 1000.f, currentWeapon.getDamage());
 }
 
-// 4. Logic for Melee Attacks
 void Game::handleMeleeAttack() {
     static sf::Clock meleeClock;
     const Weapon& currentWeapon = mPlayer.getWeapon();
@@ -137,7 +110,6 @@ void Game::handleMeleeAttack() {
 
     meleeClock.restart();
 
-    // Get Mouse Direction for Aiming
     sf::Vector2f playerPos = mPlayer.getPlayerPosition();
     sf::Vector2u pSize = mPlayer.getTextureSize();
     sf::Vector2f playerCenter = { playerPos.x + static_cast<float>(pSize.x) / 2.f, playerPos.y + static_cast<float>(pSize.y) / 2.f };
@@ -148,7 +120,6 @@ void Game::handleMeleeAttack() {
     float len = std::sqrt(aimDir.x * aimDir.x + aimDir.y * aimDir.y);
     if (len != 0) aimDir /= len;
 
-    // Check all enemies
     for (const auto& enemyPtr : mEnemies) {
         if (enemyPtr->getCurrentHealth() <= 0) continue;
 
@@ -159,13 +130,10 @@ void Game::handleMeleeAttack() {
         sf::Vector2f diff = enemyCenter - playerCenter;
         float dist = std::sqrt(diff.x * diff.x + diff.y * diff.y);
 
-        // Check Range
         if (dist <= currentWeapon.getRange()) {
-            // Check Angle (Are we facing the enemy?)
             sf::Vector2f dirToEnemy = diff / dist;
             float dotProduct = aimDir.x * dirToEnemy.x + aimDir.y * dirToEnemy.y;
-
-            if (dotProduct > 0.5f) { // ~60 degree cone
+            if (dotProduct > 0.5f) {
                 enemyPtr->takeDamage(currentWeapon.getDamage());
                 std::cout << "Melee hit!\n";
             }
@@ -175,25 +143,29 @@ void Game::handleMeleeAttack() {
 
 // 5. Main Update Loop
 void Game::update(sf::Time deltaTime) {
-    // Set View FIRST so all logic uses correct coordinates
+    // Check for Game Over Condition
+    if (mPlayer.isDead()) {
+        mIsGameOver = true;
+        // We return early so enemies stop moving and physics freezes
+        return;
+    }
+
     mWindow.setView(mView);
 
-    // Update Entities
     mPlayer.update(deltaTime, mWorldSize, mWindow);
-    mHUD.update(mPlayer, mWindow);
+    mHUD.update(mPlayer, mWindow, deltaTime);
+
+    handleEnemySpawning(deltaTime);
 
     for (const auto& enemy : mEnemies) {
         enemy->update(deltaTime, mWorldSize, mWindow);
     }
 
-    // Update Projectiles
     updateProjectiles(deltaTime);
-
-    // Physics & Logic
     resolveEnemyCollisions();
-    checkCollisions();     // Bullet vs Enemy
-    cleanupEntities();     // Remove dead stuff
-    updateCamera();        // Move view
+    checkCollisions();
+    cleanupEntities();
+    updateCamera();
 }
 
 void Game::updateProjectiles(sf::Time deltaTime) {
@@ -202,12 +174,10 @@ void Game::updateProjectiles(sf::Time deltaTime) {
     }
 }
 
-// 6. Camera Logic
 void Game::updateCamera() {
     sf::Vector2f targetPos = mPlayer.getPlayerPosition();
     sf::Vector2u playerSize = mPlayer.getTextureSize();
 
-    // Center on Player
     targetPos.x += static_cast<float>(playerSize.x) / 2.f;
     targetPos.y += static_cast<float>(playerSize.y) / 2.f;
 
@@ -215,7 +185,6 @@ void Game::updateCamera() {
     float halfW = viewSize.x / 2.0f;
     float halfH = viewSize.y / 2.0f;
 
-    // Clamp Camera to World Bounds
     if (targetPos.x < halfW) targetPos.x = halfW;
     else if (targetPos.x > mWorldSize.x - halfW) targetPos.x = mWorldSize.x - halfW;
 
@@ -225,27 +194,22 @@ void Game::updateCamera() {
     mView.setCenter(targetPos);
 }
 
-// 7. Collision Detection (Bullet vs Enemy)
 void Game::checkCollisions() {
     for (auto& proj : mProjectiles) {
         if (proj.isDestroyed()) continue;
 
         for (auto& enemy : mEnemies) {
             if (enemy->getCurrentHealth() <= 0) continue;
-
-            // SFML 3 Intersection Check
             if (proj.getBounds().findIntersection(enemy->getGlobalBounds())) {
                 enemy->takeDamage(proj.getDamage());
                 proj.destroy();
-                break; // One bullet hits one enemy
+                break;
             }
         }
     }
 }
 
-// 8. Cleanup Dead Objects
 void Game::cleanupEntities() {
-    // Remove dead enemies
     std::erase_if(mEnemies, [](const auto& enemy) {
         if (enemy->getCurrentHealth() <= 0) {
             enemy->death();
@@ -254,13 +218,11 @@ void Game::cleanupEntities() {
         return false;
     });
 
-    // Remove destroyed projectiles
     std::erase_if(mProjectiles, [](const Projectile& p) {
         return p.isDestroyed();
     });
 }
 
-// 9. Enemy Separation Logic
 void Game::resolveEnemyCollisions() const {
     for (size_t i = 0; i < mEnemies.size(); ++i) {
         for (size_t j = i + 1; j < mEnemies.size(); ++j) {
@@ -288,25 +250,77 @@ void Game::resolveEnemyCollisions() const {
     }
 }
 
-// 10. Render
+// 10. Render Logic
 void Game::render() {
     mWindow.clear(sf::Color::Black);
 
-    // Draw World
+    // 1. Draw Game World (Using Camera View)
     mWindow.setView(mView);
     mLevel.render(mWindow);
-    mPlayer.render(mWindow);
+
+    // --- CHANGED: Only Draw Player if Alive ---
+    if (!mPlayer.isDead()) {
+        mPlayer.render(mWindow);
+    }
+    // ------------------------------------------
+
     for (const auto& enemy : mEnemies) enemy->render(mWindow);
     for (const auto& proj : mProjectiles) proj.render(mWindow);
 
-    // Draw HUD
+    // 2. Draw HUD (Using Default/Screen View)
     mWindow.setView(mWindow.getDefaultView());
     mHUD.render(mWindow);
+
+    // 3. Draw Game Over Text (Using Default/Screen View)
+    if (mIsGameOver) {
+        // We use default view so the text is centered on the monitor,
+        // not somewhere in the game world
+        mWindow.setView(mWindow.getDefaultView());
+        mHUD.renderGameOver(mWindow);
+    }
 
     mWindow.display();
 }
 
-// Operator overload
+void Game::handleEnemySpawning(sf::Time deltaTime) {
+    mSpawnTimer += deltaTime.asSeconds();
+    float totalTime = mSurvivalClock.getElapsedTime().asSeconds();
+
+    if (totalTime < 30.f) mSpawnInterval = 2.5f;
+    else if (totalTime < 60.f) mSpawnInterval = 1.5f;
+    else mSpawnInterval = 0.8f;
+
+    if (mSpawnTimer >= mSpawnInterval) {
+        spawnOneEnemy();
+        mSpawnTimer = 0.f;
+    }
+}
+
+void Game::spawnOneEnemy() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> distX(100.f, mWorldSize.x - 100.f);
+    std::uniform_real_distribution<float> distY(100.f, mWorldSize.y - 100.f);
+
+    sf::Vector2f spawnPos;
+    sf::Vector2f playerPos = mPlayer.getPlayerPosition();
+    bool validPosition = false;
+    int attempts = 0;
+
+    while (!validPosition && attempts < 10) {
+        spawnPos.x = distX(gen);
+        spawnPos.y = distY(gen);
+        float dx = spawnPos.x - playerPos.x;
+        float dy = spawnPos.y - playerPos.y;
+        float distance = std::sqrt(dx*dx + dy*dy);
+
+        if (distance > 600.f) validPosition = true;
+        attempts++;
+    }
+
+    mEnemies.push_back(std::make_unique<Enemy>(spawnPos, 80.f, 50.f));
+}
+
 std::ostream& operator<<(std::ostream& os, const Game& game) {
     os << "====== GAME STATE ======\n"
        << "* " << game.mLevel << "\n"

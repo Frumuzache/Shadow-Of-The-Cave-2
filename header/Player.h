@@ -17,6 +17,9 @@ public:
     static Player& getInstance();
     sf::Vector2u getTextureSize() const;
 
+    void takeDamage(float damage);
+    bool isDead() const;
+
     Weapon& getWeapon();
     static float getAttackDamage() { return 10.f; } // Later, this comes from a Weapon
     static float getAttackRange()  { return 50.f; } // Later, this comes from a Weapon

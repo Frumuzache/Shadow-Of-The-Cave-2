@@ -35,6 +35,14 @@ private:
     void updateProjectiles(sf::Time deltaTime);
     void checkCollisions();
     void cleanupEntities();
+    bool mIsGameOver;
+
+    sf::Clock mSurvivalClock;    // Cât timp a rezistat jucătorul (pentru dificultate)
+    float mSpawnTimer;           // Cât timp a trecut de la ultimul spawn
+    float mSpawnInterval;        // Cât așteptăm până la următorul spawn (se va micșora)
+
+    void handleEnemySpawning(sf::Time deltaTime); // Funcție nouă helper
+    void spawnOneEnemy();
 
 
     // Composition: Game "has-a" window, clock, level, hud, player, and enemies

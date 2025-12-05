@@ -92,3 +92,20 @@ sf::Vector2u Player::getTextureSize() const { return mTexture.getSize(); }
 sf::Angle Player::getRotation() const { return mSprite.getRotation(); }
 
 void Player::updateHealth(sf::Time deltaTime) { (void)deltaTime; }
+
+
+
+void Player::takeDamage(float damage) {
+    // Accessing protected variable 'currentHealth' from Entity class
+    if (currentHealth > 0) {
+        currentHealth -= damage;
+
+        if (currentHealth < 0) currentHealth = 0;
+
+        std::cout << "Player took damage! Current HP: " << currentHealth << "\n";
+    }
+}
+
+bool Player::isDead() const {
+    return currentHealth <= 0;
+}
