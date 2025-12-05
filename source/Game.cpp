@@ -180,7 +180,7 @@ void Game::update(sf::Time deltaTime) {
 
     // Update Entities
     mPlayer.update(deltaTime, mWorldSize, mWindow);
-    mHUD.update(mPlayer);
+    mHUD.update(mPlayer, mWindow);
 
     for (const auto& enemy : mEnemies) {
         enemy->update(deltaTime, mWorldSize, mWindow);
