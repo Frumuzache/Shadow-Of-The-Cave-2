@@ -28,6 +28,14 @@ private:
     void render();
     void resolveEnemyCollisions() const;
 
+    void handleInput();
+    void handleShooting();
+    void handleMeleeAttack();
+    void updateCamera();
+    void updateProjectiles(sf::Time deltaTime);
+    void checkCollisions();
+    void cleanupEntities();
+
 
     // Composition: Game "has-a" window, clock, level, hud, player, and enemies
     sf::RenderWindow mWindow;

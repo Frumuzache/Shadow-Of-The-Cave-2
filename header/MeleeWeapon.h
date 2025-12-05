@@ -1,10 +1,8 @@
 #ifndef MELEEWEAPON_H
 #define MELEEWEAPON_H
-
 #include "Weapon.h"
-#include <ostream> // Pentru std::ostream
 
-class MeleeWeapon : public Weapon {
+class MeleeWeapon final : public Weapon {
 public:
     // Constructor implicit
     MeleeWeapon();

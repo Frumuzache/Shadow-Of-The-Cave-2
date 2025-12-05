@@ -1,10 +1,8 @@
 #ifndef RANGEDWEAPON_H
 #define RANGEDWEAPON_H
-
 #include "Weapon.h"
-#include <ostream> // Pentru std::ostream
 
-class RangedWeapon : public Weapon {
+class RangedWeapon final : public Weapon {
 public:
     // Constructor implicit
     RangedWeapon();
