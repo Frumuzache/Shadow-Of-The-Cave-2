@@ -8,7 +8,8 @@ Player::Player()
     : mRangedWeapon(),
       mMeleeWeapon(),
       // Initialize with dummy values, actual setup happens in loadThrowableWeapon
-      mThrowableWeapon("Frag Grenade", 50.f, 0.f, 50.f, 50.f, 0.f)
+      mThrowableWeapon("Frag Grenade", 50.f, 0.f, 50.f, 50.f, 0.f),
+      mMagicWeapon()
 {
     mMovementSpeed = 150.f;
 
@@ -108,8 +109,9 @@ MeleeWeapon& Player::getMeleeWeapon() { return mMeleeWeapon; }
 ThrowableWeapon& Player::getThrowableWeapon() { return mThrowableWeapon; }
 Weapon& Player::getActiveWeapon() { return mRangedWeapon; }
 void Player::updateHealth(sf::Time deltaTime) { (void)deltaTime; }
+MagicWeapon& Player::getMagicWeapon() { return mMagicWeapon; }
 
-void Player::takeDamage(float damage) {
+void Player::takeDamage(const float damage) {
     if (currentHealth > 0) {
         currentHealth -= damage;
         if (currentHealth < 0) currentHealth = 0;

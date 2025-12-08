@@ -75,6 +75,9 @@ void Game::handleInput() {
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
         handleGrenadeThrow();
     }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::K)) {
+        mPlayer.getMagicWeapon().castSpell();
+    }
 }
 
 void Game::handleShooting() {
@@ -196,9 +199,28 @@ void Game::update(sf::Time deltaTime) {
         mPlayer.getRangedWeapon().applyUpgrade();
         mPlayer.getMeleeWeapon().applyUpgrade();
         mPlayer.getThrowableWeapon().applyUpgrade();
+        mPlayer.getMagicWeapon().applyUpgrade();
 
         // Reset the timer
         mUpgradeClock.restart();
+    }
+
+    //Magic weapons update
+    MagicWeapon& magic = mPlayer.getMagicWeapon();
+    magic.update(deltaTime);
+
+    if (magic.shouldDealDamage()) {
+        float damage = magic.getDamage();
+        std::cout << ">>> MAGIC TICK: Dealing " << damage << " to all enemies.\n";
+
+        for (const auto& enemyPtr : mEnemies) {
+            // Safe cast check
+            if (auto* enemy = dynamic_cast<Enemy*>(enemyPtr.get())) {
+                if (enemy->getCurrentHealth() > 0) {
+                    enemy->takeDamage(damage);
+                }
+            }
+        }
     }
 }
 

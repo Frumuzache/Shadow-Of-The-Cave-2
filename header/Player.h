@@ -5,6 +5,7 @@
 #include "RangedWeapon.h"
 #include "MeleeWeapon.h"
 #include "ThrowableWeapon.h"
+#include "MagicWeapon.h"
 #include <SFML/Graphics.hpp>
 
 class Player : public Entity {
@@ -27,6 +28,8 @@ public:
     RangedWeapon& getRangedWeapon();
     MeleeWeapon& getMeleeWeapon();
     ThrowableWeapon& getThrowableWeapon();
+    MagicWeapon& getMagicWeapon();
+
 
     Weapon& getActiveWeapon();
 
@@ -49,10 +52,13 @@ private:
     // Inventory
     RangedWeapon mRangedWeapon;
     MeleeWeapon mMeleeWeapon;
+    ThrowableWeapon mThrowableWeapon;
+    MagicWeapon mMagicWeapon;
+
 
     // Grenade assets must be owned by Player to be valid for mThrowableWeapon
     sf::Texture mGrenadeTexture;
-    ThrowableWeapon mThrowableWeapon;
+
 };
 
 #endif
