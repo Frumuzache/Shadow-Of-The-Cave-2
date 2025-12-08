@@ -7,20 +7,36 @@ int main() {
         Game game(1920, 1080, "Shadow of the Cave");
         game.run();
     }
+    catch (const GameConfigException& e) {
+        std::cerr << "\n[CRITICAL CONFIG ERROR]\n";
+        std::cerr << "The game could not start because: " << e.what() << "\n";
+        std::cerr << "Please check your code in main.cpp parameters.\n";
+        return 1;
+    }
+
+    // Catches errors related to missing files
     catch (const AssetLoadException& e) {
-        // 1. Handle missing files (Player, Level, Font, etc.)
-        std::cerr << "[CRITICAL] " << e.what() << "\n";
-        std::cerr << "Make sure the 'assets' folder is next to the executable.\n";
-        return -1;
+        std::cerr << "\n[ASSET MISSING]\n";
+        std::cerr << e.what() << "\n";
+        std::cerr << "Ensure the 'assets' folder is next to the executable.\n";
+        return 2;
     }
+
+    catch (const InvalidStatException& e) {
+        std::cerr << "\n[DATA INTEGRITY ERROR]\n";
+        std::cerr << "A game object was created with broken stats:\n";
+        std::cerr << e.what() << "\n";
+        return 3;
+    }
+
     catch (const GameException& e) {
-        // 2. Handle logic errors (like the Grenade cast)
-        std::cerr << "[GAME LOGIC ERROR] " << e.what() << "\n";
-        return -1;
+        std::cerr << "\n[GENERIC GAME ERROR]: " << e.what() << "\n";
+        return 4;
     }
+
+    // Safety net for standard C++ errors (std::out_of_range, std::bad_alloc, etc.)
     catch (const std::exception& e) {
-        // 3. Handle anything else
-        std::cerr << "[UNKNOWN ERROR] " << e.what() << "\n";
+        std::cerr << "\n[UNEXPECTED SYSTEM ERROR]: " << e.what() << "\n";
         return -1;
     }
 

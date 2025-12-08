@@ -28,8 +28,13 @@ void MeleeWeapon::load() {
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const MeleeWeapon& weapon) {
-    os << static_cast<const Weapon&>(weapon);
+// std::ostream& operator<<(std::ostream& os, const MeleeWeapon& weapon) {
+//     os << static_cast<const Weapon&>(weapon);
+//     os << " [Type: Melee]";
+//     return os;
+// }
+
+void MeleeWeapon::print(std::ostream& os) const {
+    Weapon::print(os);
     os << " [Type: Melee]";
-    return os;
 }

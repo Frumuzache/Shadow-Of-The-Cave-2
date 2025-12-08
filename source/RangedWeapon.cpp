@@ -28,8 +28,10 @@ void RangedWeapon::load() {
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const RangedWeapon& weapon) {
-    os << static_cast<const Weapon&>(weapon);
+void RangedWeapon::print(std::ostream& os) const {
+    // 1. Call base printer first
+    Weapon::print(os);
+    // 2. Add specific details
     os << " [Type: Ranged]";
-    return os;
+
 }

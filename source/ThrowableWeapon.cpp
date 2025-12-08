@@ -3,21 +3,29 @@
 #include <SFML/System/Angle.hpp>
 #include <exception>
 
-ThrowableWeapon::ThrowableWeapon(const std::string& name, float damage, float reloadTime, float range, float explosionRadius, float fuseTime, const sf::Texture& texture)
-    : Weapon(name, damage, reloadTime, range),
+ThrowableWeapon::ThrowableWeapon()
+    : Weapon("Basic Grenade", 0.f, 0.f, 0.f, WeaponType::Throwable), // Ensure WeaponType is correct
+      mExplosionRadius(0.f),
+      mFuseTime(0.f),
+      mCurrentTimer(0.f),
+      mIsActive(false),
+      mIsExploding(false),
+      mHasDamaged(false),
+      mFinished(false)
+{
+}
+
+ThrowableWeapon::ThrowableWeapon(const std::string& name, float damage, float reloadTime, float range, float explosionRadius, float fuseTime)
+    : Weapon(name, damage, reloadTime, range, WeaponType::Throwable),
       mExplosionRadius(explosionRadius),
       mFuseTime(fuseTime),
       mCurrentTimer(0.f),
       mIsActive(false),
       mIsExploding(false),
       mHasDamaged(false),
-      mFinished(false),
-      mGrenadeSprite(texture)
+      mFinished(false)
 {
-    sf::Vector2u size = texture.getSize();
-    mGrenadeSprite.setOrigin({static_cast<float>(size.x) / 2.f, static_cast<float>(size.y) / 2.f});
-    mGrenadeSprite.setScale({0.5f, 0.5f});
-
+    // Initialize explosion visual
     mExplosionShape.setRadius(mExplosionRadius);
     mExplosionShape.setOrigin({mExplosionRadius, mExplosionRadius});
     mExplosionShape.setFillColor(sf::Color(255, 69, 0, 150));
@@ -27,23 +35,13 @@ std::unique_ptr<Weapon> ThrowableWeapon::clone() const {
     return std::make_unique<ThrowableWeapon>(*this);
 }
 
-void ThrowableWeapon::load(sf::Texture& textureToLoad) {
+void ThrowableWeapon::load() {
     try {
-        // 1. Load the actual image file into the provided texture reference
-        if (!textureToLoad.loadFromFile("../assets/grenade.png")) {
-            throw std::runtime_error("Failed to load grenade.png");
-        }
+        // Re-initialize using the assignment pattern
+        *this = ThrowableWeapon("Frag Grenade", 150.f, 2.f, 200.f, 100.f, 2.f);
 
-
-
-
-        // 2. Re-initialize *this with the newly loaded texture and correct stats
-        *this = ThrowableWeapon("Frag Grenade", 150.f, 0.f, 0.f, 200.f, 2.0f, textureToLoad);
-
-        ///set the scale of the grande sprite
-        sf::Vector2u size = textureToLoad.getSize();
-        mGrenadeSprite.setOrigin({static_cast<float>(size.x) / 2.f, static_cast<float>(size.y) / 2.f});
-        mGrenadeSprite.setScale({0.2f, 0.2f});
+        loadTexture("../assets/grenade.png"); // Make sure this path exists, or use "rifle.png" if testing
+        setVisualSize(90.f, 80.f);            // Small size for grenade
 
         std::cout << "ThrowableWeapon loaded successfully.\n";
     }
@@ -52,10 +50,20 @@ void ThrowableWeapon::load(sf::Texture& textureToLoad) {
     }
 }
 
+void ThrowableWeapon::print(std::ostream& os) const {
+    Weapon::print(os);
+    os << " [Type: Throwable | Radius: " << mExplosionRadius << "]";
+}
+
+// --- Gameplay Logic ---
+
 void ThrowableWeapon::throwAt(const sf::Vector2f position) {
     mWorldPosition = position;
-    mGrenadeSprite.setPosition(mWorldPosition);
+
+    // FIX 1: Use mSprite instead of mGrenadeSprite
+    mSprite.setPosition(mWorldPosition);
     mExplosionShape.setPosition(mWorldPosition);
+
     mIsActive = true;
     mCurrentTimer = 0.f;
 }
@@ -66,13 +74,17 @@ void ThrowableWeapon::update(sf::Time deltaTime) {
     mCurrentTimer += deltaTime.asSeconds();
 
     if (!mIsExploding) {
-        mGrenadeSprite.rotate(sf::degrees(360.f * deltaTime.asSeconds()));
+        // FIX 2: Use mSprite
+        mSprite.rotate(sf::degrees(360.f * deltaTime.asSeconds()));
 
+        // Blink effect
         float blinkSpeed = 5.f + (mCurrentTimer * 5.f);
+
+        // FIX 3: Use mSprite
         if (static_cast<int>(mCurrentTimer * blinkSpeed) % 2 == 0) {
-            mGrenadeSprite.setColor(sf::Color(255, 100, 100));
+            mSprite.setColor(sf::Color(255, 100, 100));
         } else {
-            mGrenadeSprite.setColor(sf::Color::White);
+            mSprite.setColor(sf::Color::White);
         }
 
         if (mCurrentTimer >= mFuseTime) {
@@ -80,6 +92,7 @@ void ThrowableWeapon::update(sf::Time deltaTime) {
             mCurrentTimer = 0.f;
         }
     } else {
+        // Explosion duration
         if (mCurrentTimer >= 0.5f) {
             mFinished = true;
         }
@@ -100,7 +113,8 @@ void ThrowableWeapon::render(sf::RenderWindow& window) const {
     if (mIsExploding) {
         window.draw(mExplosionShape);
     } else {
-        window.draw(mGrenadeSprite);
+        // FIX 4: Use mSprite
+        window.draw(mSprite);
     }
 }
 

@@ -8,7 +8,7 @@ enum class WeaponType {
     Melee,
     Ranged,
     Magic,
-    Explosive
+    Throwable
 };
 
 class Weapon {
@@ -45,8 +45,9 @@ public:
 
     // operator<< for display
     friend std::ostream& operator<<(std::ostream& os, const Weapon& weapon);
+    virtual void print(std::ostream& os) const;
 
-private: // Changed from protected for better encapsulation
+protected: // Changed from protected for better encapsulation
 
     sf::Texture mTexture;
     sf::Sprite mSprite;

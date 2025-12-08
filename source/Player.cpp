@@ -8,7 +8,7 @@ Player::Player()
     : mRangedWeapon(),
       mMeleeWeapon(),
       // Initialize with dummy values, actual setup happens in loadThrowableWeapon
-      mThrowableWeapon("Frag Grenade", 0.f, 0.f, 0.f, 0.f, 0.f, mGrenadeTexture)
+      mThrowableWeapon("Frag Grenade", 50.f, 0.f, 50.f, 50.f, 0.f)
 {
     mMovementSpeed = 150.f;
 
@@ -39,7 +39,7 @@ void Player::loadMeleeWeapon() {
 
 void Player::loadThrowableWeapon() {
     // Delegate to the class, passing the texture storage that Player owns
-    mThrowableWeapon.load(mGrenadeTexture);
+    mThrowableWeapon.load();
 }
 
 void Player::update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) {

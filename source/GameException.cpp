@@ -14,3 +14,8 @@ AssetLoadException::AssetLoadException(const std::string& assetType, const std::
 {
 }
 
+GameConfigException::GameConfigException(const std::string& component, const std::string& reason)
+    : GameException("Configuration Error in [" + component + "]: " + reason) {}
+
+InvalidStatException::InvalidStatException(const std::string& context, const std::string& statName, const float value)
+    : GameException("Invalid Stat in " + context + " -> " + statName + " cannot be " + std::to_string(value)) {}

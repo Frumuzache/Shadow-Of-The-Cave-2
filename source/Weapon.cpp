@@ -9,11 +9,20 @@ Weapon::Weapon()
     std::cout << "Weapon default constructor called.\n";
 }
 
-Weapon::Weapon(std::string name, float damage, float reloadTime, float range, WeaponType type)
+Weapon::Weapon(std::string name, float damage, float reloadTime, const float range, WeaponType type)
     : mTexture{}, mSprite(mTexture), type(type), name(std::move(name)), damage(damage),
       reloadTime(reloadTime), range(range)
 {
     std::cout << "Weapon created: " << this->name << "\n";
+    if (damage < 0.f) {
+        throw InvalidStatException(this->name, "Damage", damage);
+    }
+    if (range <= 0.f) {
+        throw InvalidStatException(this->name, "Range", range);
+    }
+    if (reloadTime < 0.f) {
+        throw InvalidStatException(this->name, "ReloadTime", reloadTime);
+    }
 }
 
 Weapon::~Weapon() {
@@ -91,7 +100,19 @@ float Weapon::getRange() const { return range; }
 const std::string& Weapon::getName() const { return name; }
 void Weapon::setScale(float scale) { mSprite.setScale({scale, scale}); }
 
+
+
+
+
+
+
 std::ostream& operator<<(std::ostream& os, const Weapon& weapon) {
-    os << "Weapon(" << weapon.name << ", Dmg:" << weapon.damage << ")";
+    weapon.print(os); // Delegates to the virtual function
     return os;
+}
+
+
+// --- VIRTUAL PRINT IMPLEMENTATION (Base Behavior) ---
+void Weapon::print(std::ostream& os) const {
+    os << "Weapon: " << name << " | Dmg: " << damage << " | Rng: " << range;
 }

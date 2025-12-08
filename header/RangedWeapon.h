@@ -14,12 +14,12 @@ public:
     // New load function to handle specific setup
     void load();
 
+    void print(std::ostream& os) const override;
+
+
 private:
     // int mMaxAmmo;
     // int mCurrentAmmo;
 };
-
-// Operator overload for printing
-std::ostream& operator<<(std::ostream& os, const RangedWeapon& weapon);
 
 #endif

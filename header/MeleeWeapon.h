@@ -9,6 +9,7 @@ public:
     MeleeWeapon(const std::string& name, float damage, float reloadTime, float range);
 
     std::unique_ptr<Weapon> clone() const override;
+    void print(std::ostream& os) const override;
 
     // New load function
     void load();

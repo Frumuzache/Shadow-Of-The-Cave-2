@@ -17,5 +17,5 @@ private:
     sf::CircleShape mShape;
     sf::Vector2f mVelocity;
     float mDamage;
-    bool mDestroyed; // To remove it if it hits a wall or enemy
+    bool mDestroyed;
 };

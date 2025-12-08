@@ -18,6 +18,10 @@ Game::Game(unsigned int width, unsigned int height, const std::string& title)
       mSpawnInterval(3.0f),
       mIsGameOver(false)
 {
+    if (width == 0 || height == 0) {
+        throw GameConfigException("Window", "Dimensions cannot be zero.");
+    }
+
     mWindow.setFramerateLimit(120);
 
     // Initialize first Enemies
