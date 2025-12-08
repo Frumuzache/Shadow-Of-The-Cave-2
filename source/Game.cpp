@@ -173,7 +173,7 @@ void Game::update(sf::Time deltaTime) {
     mWindow.setView(mView);
 
     mPlayer.update(deltaTime, mWorldSize, mWindow);
-    mHUD.update(mPlayer, mWindow, deltaTime);
+    mHUD.update(mPlayer, mWindow, deltaTime, mScore);
 
     handleEnemySpawning(deltaTime);
 
@@ -289,9 +289,10 @@ void Game::updateGrenades(sf::Time deltaTime) {
 }
 
 void Game::cleanupEntities() {
-    std::erase_if(mEnemies, [](const auto& enemy) {
+    std::erase_if(mEnemies, [this](const auto& enemy) {
         if (enemy->getCurrentHealth() <= 0) {
             Enemy::death();
+            mScore+=30;
             return true;
         }
         return false;

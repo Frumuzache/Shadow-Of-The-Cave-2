@@ -24,6 +24,12 @@ private:
     void loadAssets();
     void tryAttack(); // Logic to check range and deal damage
 
+    sf::RectangleShape mHealthBarBackground;
+    sf::RectangleShape mHealthBarForeground;
+
+    // Helper to keep code clean
+    void updateHealthBarVisuals();
+
     // Private Attributes
     sf::Vector2f mDirection;
     sf::Vector2f initialPosition;

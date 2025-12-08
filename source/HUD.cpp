@@ -9,6 +9,7 @@ HUD::HUD(std::string fontPath)
 : mFontPath(std::move(fontPath)),
   mFont(),
   // INITIALIZATION MUST MATCH HEADER ORDER
+  mKillCountText(mFont),
   mPlayerHealthText(mFont),
   mTimerText(mFont),
   mGameOverText(mFont),
@@ -38,9 +39,13 @@ HUD::HUD(std::string fontPath)
     // Setup Damage Flash
     mDamageOverlay.setSize({4000.f, 4000.f});
     mDamageOverlay.setFillColor(sf::Color(255, 0, 0, 0));
+
+    mKillCountText.setCharacterSize(24);
+    mKillCountText.setFillColor(sf::Color::White); // Yellow makes it stand out
+    mKillCountText.setStyle(sf::Text::Bold);
 }
 
-void HUD::update(const Player& player, const sf::RenderWindow& window, sf::Time deltaTime) {
+void HUD::update(const Player& player, const sf::RenderWindow& window, sf::Time deltaTime, int kills) {
     // 1. Update Health
     float currentHealth = player.getCurrentHealth();
     mPlayerHealthText.setString("Health: " + std::to_string(static_cast<int>(currentHealth)));
@@ -58,10 +63,6 @@ void HUD::update(const Player& player, const sf::RenderWindow& window, sf::Time 
         // FIX: Use std::uint8_t instead of sf::Uint8
         mDamageOverlay.setFillColor(sf::Color(255, 0, 0, static_cast<std::uint8_t>(mFlashAlpha)));
 
-        // Keep overlay centered on camera
-        // --- CHANGED LOGIC HERE ---
-        // Instead of calculating the camera center, we simply fill the window.
-        // Because HUD is rendered in "Default View" (Screen Space), 0,0 is always top-left.
 
         sf::Vector2u winSize = window.getSize();
         mDamageOverlay.setSize({static_cast<float>(winSize.x), static_cast<float>(winSize.y)});
@@ -90,11 +91,27 @@ void HUD::update(const Player& player, const sf::RenderWindow& window, sf::Time 
     });
 
     mTimerText.setPosition({static_cast<float>(windowSize.x) / 2.0f, 30.f});
+
+
+    ///text
+    mKillCountText.setString("Studenti salvati: " + std::to_string(kills));
+
+    // --- POSITION TOP RIGHT (SFML 3.0 Compatible) ---
+    sf::Vector2u winSize = window.getSize();
+    sf::FloatRect bounds = mKillCountText.getLocalBounds();
+
+    // X = Window Width - Text Width - Padding (20px)
+    // Y = Padding (10px)
+    float xPos = static_cast<float>(winSize.x) - bounds.size.x - 20.f;
+    float yPos = 10.f;
+
+    mKillCountText.setPosition({xPos, yPos});
 }
 
 void HUD::render(sf::RenderWindow& window) const {
     window.draw(mPlayerHealthText);
     window.draw(mTimerText);
+    window.draw(mKillCountText);
 
     if (mFlashAlpha > 0.f) {
         window.draw(mDamageOverlay);

@@ -14,6 +14,15 @@ Enemy::Enemy()
 {
     loadAssets();
     mSprite.setPosition(initialPosition);
+
+    mHealthBarBackground.setSize(sf::Vector2f(100.f, 50.f)); // 50px wide
+    mHealthBarBackground.setFillColor(sf::Color(50, 50, 50)); // Dark Grey
+    mHealthBarBackground.setOutlineThickness(1.f);
+    mHealthBarBackground.setOutlineColor(sf::Color::Black);
+
+    // Foreground (Green)
+    mHealthBarForeground.setSize(sf::Vector2f(50.f, 5.f));
+    mHealthBarForeground.setFillColor(sf::Color::Green);
 }
 
 // Parameterized Constructor
@@ -26,6 +35,14 @@ Enemy::Enemy(const sf::Vector2f startPosition, const float speed, const float he
 {
     loadAssets();
     mSprite.setPosition(startPosition);
+
+    mHealthBarBackground.setSize(sf::Vector2f(200.f, 25.f));
+    mHealthBarBackground.setFillColor(sf::Color(50, 50, 50));
+    mHealthBarBackground.setOutlineThickness(1.f);
+    mHealthBarBackground.setOutlineColor(sf::Color::Black);
+
+    mHealthBarForeground.setSize(sf::Vector2f(50.f, 5.f));
+    mHealthBarForeground.setFillColor(sf::Color::Green);
 }
 
 void Enemy::loadAssets() {
@@ -41,6 +58,7 @@ void Enemy::update(const sf::Time deltaTime, const sf::Vector2f& mapBounds, cons
 
     // 2. Handle Combat (Try to attack player)
     tryAttack();
+    updateHealthBarVisuals();
 
     // Suppress unused variable warning if window isn't used for logic
     (void)window;
@@ -121,9 +139,48 @@ void Enemy::death() {
 
 void Enemy::render(sf::RenderWindow &window) const {
     window.draw(mSprite);
+    if (currentHealth > 0) {
+        window.draw(mHealthBarBackground);
+        window.draw(mHealthBarForeground);
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const Enemy& enemy) {
     os << "--- ENEMY ---\n" << static_cast<const Entity&>(enemy);
     return os;
+}
+
+
+void Enemy::updateHealthBarVisuals() {
+
+    const sf::FloatRect bounds = mSprite.getGlobalBounds();
+
+    constexpr float barMaxWidth = 200.f;
+    constexpr float barHeight = 25.f;
+
+    // Calculate center X
+    float barX = bounds.position.x + (bounds.size.x / 2.f) - (barMaxWidth / 2.f);
+
+    // Calculate Y (above the sprite)
+    float barY = bounds.position.y - 15.f;
+
+    mHealthBarBackground.setPosition({barX, barY});
+    mHealthBarForeground.setPosition({barX, barY});
+
+    // --- FIX 2: Prevent "Always Gray" logic errors ---
+    // Ensure we don't divide by zero or get negative values
+    if (maxHealth <= 0.f) maxHealth = 1.f;
+
+    float hpPercent = currentHealth / maxHealth;
+    if (hpPercent < 0.f) hpPercent = 0.f;
+    if (hpPercent > 1.f) hpPercent = 1.f;
+
+    mHealthBarForeground.setSize(sf::Vector2f(barMaxWidth * hpPercent, barHeight));
+
+    // Optional: Update color based on health
+    if (hpPercent < 0.3f) {
+        mHealthBarForeground.setFillColor(sf::Color::Red);
+    } else {
+        mHealthBarForeground.setFillColor(sf::Color::Green);
+    }
 }
