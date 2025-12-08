@@ -15,6 +15,8 @@ public:
     void load();
 
     void print(std::ostream& os) const override;
+    void applyUpgrade() override;
+
 
 
 private:

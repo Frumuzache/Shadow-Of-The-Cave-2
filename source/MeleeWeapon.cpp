@@ -3,7 +3,7 @@
 #include <exception>
 
 MeleeWeapon::MeleeWeapon()
-    : Weapon("Basic Sword", 15.f, 0.8f, 60.f) {
+    : Weapon("Basic Sword", 35.f, 0.8f, 120.f) {
 }
 
 MeleeWeapon::MeleeWeapon(const std::string& name, float damage, float reloadTime, float range)
@@ -17,7 +17,7 @@ std::unique_ptr<Weapon> MeleeWeapon::clone() const {
 void MeleeWeapon::load() {
     try {
         // Configure specific stats for the default Melee Weapon
-        *this = MeleeWeapon("Combat Knife", 30.f, 0.5f, 60.f);
+        *this = MeleeWeapon("Combat Knife", 50.f, 0.5f, 200.f);
 
         // Optional: Load texture if available
         // if (!loadTexture("../assets/knife.png")) { ... }
@@ -26,6 +26,14 @@ void MeleeWeapon::load() {
     } catch (const std::exception& e) {
         std::cerr << "Error loading MeleeWeapon: " << e.what() << "\n";
     }
+}
+
+void MeleeWeapon::applyUpgrade() {
+    // Increase damage by 10 flat points
+    this->damage += 10.f;
+
+    std::cout << ">>> MELEE UPGRADE: Blade sharpened! New Damage: "
+              << this->damage << "\n";
 }
 
 // std::ostream& operator<<(std::ostream& os, const MeleeWeapon& weapon) {

@@ -28,6 +28,8 @@ public:
     sf::Vector2f getPosition() const;
 
     void print(std::ostream& os) const override;
+    void applyUpgrade() override;
+
 
 private:
     float mExplosionRadius;

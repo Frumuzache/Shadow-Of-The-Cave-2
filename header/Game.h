@@ -64,6 +64,7 @@ private:
     float mSpawnTimer;
     float mSpawnInterval;
     bool mIsGameOver;
+    sf::Clock mUpgradeClock;
 };
 
 std::ostream& operator<<(std::ostream& os, const Game& game);

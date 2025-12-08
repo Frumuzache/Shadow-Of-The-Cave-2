@@ -17,7 +17,7 @@ std::unique_ptr<Weapon> RangedWeapon::clone() const {
 void RangedWeapon::load() {
     try {
 
-        *this = RangedWeapon("AK-47", 15.f, 0.1f, 800.f);
+        *this = RangedWeapon("AK-47", 15.f, 0.2f, 800.f);
         loadTexture("../assets/rifle.png");
         setVisualSize(200.f, 100.f);
         std::cout << "RangedWeapon loaded successfully.\n";
@@ -34,4 +34,17 @@ void RangedWeapon::print(std::ostream& os) const {
     // 2. Add specific details
     os << " [Type: Ranged]";
 
+}
+
+void RangedWeapon::applyUpgrade() {
+    // Decrease reload time by 10% per upgrade
+    this->reloadTime *= 0.9f;
+
+    // Cap the speed so it doesn't become instant (e.g., min 0.05s)
+    if (this->reloadTime < 0.05f) {
+        this->reloadTime = 0.05f;
+    }
+
+    std::cout << ">>> RANGED UPGRADE: Fire rate increased! New Reload Time: "
+              << this->reloadTime << "s\n";
 }

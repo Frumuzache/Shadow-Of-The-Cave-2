@@ -46,6 +46,7 @@ public:
     // operator<< for display
     friend std::ostream& operator<<(std::ostream& os, const Weapon& weapon);
     virtual void print(std::ostream& os) const;
+    virtual void applyUpgrade() = 0;
 
 protected: // Changed from protected for better encapsulation
 

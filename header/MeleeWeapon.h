@@ -13,8 +13,12 @@ public:
 
     // New load function
     void load();
+
+
+    // std::ostream& operator<<(std::ostream& os, const MeleeWeapon& weapon);
+
+    void applyUpgrade() override;
 };
 
-std::ostream& operator<<(std::ostream& os, const MeleeWeapon& weapon);
 
 #endif

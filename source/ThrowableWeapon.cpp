@@ -118,6 +118,21 @@ void ThrowableWeapon::render(sf::RenderWindow& window) const {
     }
 }
 
+void ThrowableWeapon::applyUpgrade() {
+    // Increase radius by 25 units
+    mExplosionRadius += 25.f;
+
+    // CRITICAL: Update the visual shape to match the new logic
+    mExplosionShape.setRadius(mExplosionRadius);
+
+    // Re-center the origin so the explosion stays centered on the grenade
+    mExplosionShape.setOrigin({mExplosionRadius, mExplosionRadius});
+
+    std::cout << ">>> THROWABLE UPGRADE: Bigger boom! New Radius: "
+              << mExplosionRadius << "\n";
+}
+
+
 bool ThrowableWeapon::isExploding() const { return mIsExploding; }
 bool ThrowableWeapon::isFinished() const { return mFinished; }
 float ThrowableWeapon::getExplosionRadius() const { return mExplosionRadius; }

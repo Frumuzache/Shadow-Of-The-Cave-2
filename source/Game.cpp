@@ -132,13 +132,11 @@ void Game::handleMeleeAttack() {
         float dist = std::sqrt(diff.x * diff.x + diff.y * diff.y);
 
         if (dist <= currentWeapon.getRange()) {
-            sf::Vector2f dirToEnemy = diff / dist;
-            float dotProduct = aimDir.x * dirToEnemy.x + aimDir.y * dirToEnemy.y;
-            if (dotProduct > 0.5f) {
-                enemyPtr->takeDamage(currentWeapon.getDamage());
-                std::cout << "Melee hit!\n";
-            }
+            enemyPtr->takeDamage(currentWeapon.getDamage());
+            std::cout << "SLASH! Hit enemy. (Health remaining: " << enemyPtr->getCurrentHealth() << ")\n";
         }
+
+
     }
 }
 
@@ -188,6 +186,18 @@ void Game::update(sf::Time deltaTime) {
     checkCollisions();
     cleanupEntities();
     updateCamera();
+
+    if (mUpgradeClock.getElapsedTime().asSeconds() >= 30.0f) {
+        std::cout << "\n=== GAME WORLD LEVEL UP! ===\n";
+
+        // Upgrade all player weapons
+        mPlayer.getRangedWeapon().applyUpgrade();
+        mPlayer.getMeleeWeapon().applyUpgrade();
+        mPlayer.getThrowableWeapon().applyUpgrade();
+
+        // Reset the timer
+        mUpgradeClock.restart();
+    }
 }
 
 void Game::updateProjectiles(sf::Time deltaTime) {
