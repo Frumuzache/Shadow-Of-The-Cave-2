@@ -25,7 +25,7 @@ private:
 
     void handleInput();
     void handleShooting();
-    void handleMeleeAttack();
+    void handleMeleeAttack() const;
 
     // Grenade Input Handler
     void handleGrenadeThrow();
@@ -51,7 +51,7 @@ private:
     HUD mHUD;
     Player& mPlayer;
 
-    std::vector<std::unique_ptr<Enemy>> mEnemies;
+    std::vector<std::unique_ptr<Entity>> mEnemies;
     std::vector<Projectile> mProjectiles;
 
     // --- Added missing variables to fix Game.cpp errors ---

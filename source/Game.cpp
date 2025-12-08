@@ -103,7 +103,7 @@ void Game::handleShooting() {
     mProjectiles.emplace_back(playerCenter, normalizedDir, 1000.f, currentWeapon.getDamage());
 }
 
-void Game::handleMeleeAttack() {
+void Game::handleMeleeAttack() const {
     static sf::Clock meleeClock;
 
     const Weapon& currentWeapon = mPlayer.getMeleeWeapon();
@@ -115,8 +115,8 @@ void Game::handleMeleeAttack() {
     sf::Vector2u pSize = mPlayer.getTextureSize();
     sf::Vector2f playerCenter = { playerPos.x + static_cast<float>(pSize.x) / 2.f, playerPos.y + static_cast<float>(pSize.y) / 2.f };
 
-    sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
-    sf::Vector2f mouseWorld = mWindow.mapPixelToCoords(mousePos);
+    const sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f mouseWorld = mWindow.mapPixelToCoords(mousePos);
     sf::Vector2f aimDir = mouseWorld - playerCenter;
     float len = std::sqrt(aimDir.x * aimDir.x + aimDir.y * aimDir.y);
     if (len != 0) aimDir /= len;
@@ -124,16 +124,18 @@ void Game::handleMeleeAttack() {
     for (const auto& enemyPtr : mEnemies) {
         if (enemyPtr->getCurrentHealth() <= 0) continue;
 
-        const sf::Vector2f enemyPos = enemyPtr->getPosition();
-        const sf::Vector2u eSize = enemyPtr->getSpriteSize();
-        const sf::Vector2f enemyCenter = enemyPos + sf::Vector2f(static_cast<float>(eSize.x)/2.f, static_cast<float>(eSize.y)/2.f);
 
-        sf::Vector2f diff = enemyCenter - playerCenter;
-        float dist = std::sqrt(diff.x * diff.x + diff.y * diff.y);
 
-        if (dist <= currentWeapon.getRange()) {
-            enemyPtr->takeDamage(currentWeapon.getDamage());
-            std::cout << "SLASH! Hit enemy. (Health remaining: " << enemyPtr->getCurrentHealth() << ")\n";
+        if (auto* enemy = dynamic_cast<Enemy*>(enemyPtr.get())) {
+            if (enemy->getCurrentHealth() <= 0) continue;
+
+            sf::Vector2f diff = enemy->getPosition() - playerCenter; // simplified for brevity
+            float dist = std::sqrt(diff.x * diff.x + diff.y * diff.y);
+
+            if (dist <= currentWeapon.getRange()) {
+                enemy->takeDamage(currentWeapon.getDamage());
+                std::cout << "SLASH! Hit enemy.\n";
+            }
         }
 
 
@@ -230,10 +232,12 @@ void Game::checkCollisions() {
     for (auto& proj : mProjectiles) {
         if (proj.isDestroyed()) continue;
 
-        for (const auto& enemy : mEnemies) {
-            if (enemy->getCurrentHealth() <= 0) continue;
-            if (proj.getBounds().findIntersection(enemy->getGlobalBounds())) {
-                enemy->takeDamage(proj.getDamage());
+        for (const auto& enemyPtr : mEnemies) {
+
+            auto* enemyA = dynamic_cast<Enemy*>(enemyPtr.get());
+            if (enemyPtr->getCurrentHealth() <= 0) continue;
+            if (proj.getBounds().findIntersection(enemyPtr->getGlobalBounds())) {
+                enemyA->takeDamage(proj.getDamage());
                 proj.destroy();
                 break;
             }
@@ -252,19 +256,20 @@ void Game::updateGrenades(sf::Time deltaTime) {
 
             std::cout << "BOOM! Damage: " << damage << " Radius: " << radius << "\n";
 
-            for (auto& enemy : mEnemies) {
-                if (enemy->getCurrentHealth() <= 0) continue;
+            for (auto& enemyPtr : mEnemies) {
+                if (enemyPtr->getCurrentHealth() <= 0) continue;
 
-                sf::Vector2f ePos = enemy->getPosition();
-                sf::Vector2u eSize = enemy->getSpriteSize();
+                sf::Vector2f ePos = enemyPtr->getPosition();
+                sf::Vector2u eSize = enemyPtr->getSpriteSize();
                 sf::Vector2f eCenter = ePos + sf::Vector2f(static_cast<float>(eSize.x)/2.f, static_cast<float>(eSize.y)/2.f);
 
                 float dx = eCenter.x - explosionPos.x;
                 float dy = eCenter.y - explosionPos.y;
                 float dist = std::sqrt(dx*dx + dy*dy);
 
+                const auto enemyA = dynamic_cast<Enemy*>(enemyPtr.get());
                 if (dist <= radius) {
-                    enemy->takeDamage(damage);
+                    enemyA->takeDamage(damage);
                 }
             }
 
@@ -286,7 +291,7 @@ void Game::updateGrenades(sf::Time deltaTime) {
 void Game::cleanupEntities() {
     std::erase_if(mEnemies, [](const auto& enemy) {
         if (enemy->getCurrentHealth() <= 0) {
-            enemy->death();
+            Enemy::death();
             return true;
         }
         return false;
