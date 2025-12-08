@@ -1,8 +1,8 @@
 #include "../header/Enemy.h"
 #include "../header/Player.h" // Required to access Player singleton
-#include <stdexcept>
 #include <iostream>
 #include <cmath>
+#include "../header/GameException.h"
 
 // Default Constructor
 Enemy::Enemy()
@@ -30,7 +30,7 @@ Enemy::Enemy(const sf::Vector2f startPosition, const float speed, const float he
 
 void Enemy::loadAssets() {
     if (!mTexture.loadFromFile("../assets/enemy.png"))
-        throw std::runtime_error("Failed to load enemy texture");
+        throw AssetLoadException("Enemy Texture", "../assets/enemy.png");
     mSprite.setTexture(mTexture, true);
 }
 

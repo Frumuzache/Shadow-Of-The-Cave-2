@@ -1,6 +1,7 @@
 #include "../header/Level.h"
 #include <stdexcept>
 #include <utility>
+#include "../header/GameException.h"
 
 Level::Level(std::string  texturePath, sf::Vector2f mapBoundries)
     : mTexturePath(std::move(texturePath)),
@@ -8,7 +9,7 @@ Level::Level(std::string  texturePath, sf::Vector2f mapBoundries)
         mBackgroundSprite(mBackgroundTexture)
 {
     if (!mBackgroundTexture.loadFromFile(mTexturePath))
-        throw std::runtime_error("Failed to load texture: " + mTexturePath);
+        throw AssetLoadException("Level Background", mTexturePath);
 
     // mBackgroundSprite.setTexture(mBackgroundTexture, true);
 

@@ -6,6 +6,7 @@
 #include <memory>
 #include <algorithm>
 #include <random>
+#include "../header/GameException.h"
 
 Game::Game(unsigned int width, unsigned int height, const std::string& title)
     : mWindow(sf::VideoMode({width, height}), title),
@@ -149,10 +150,14 @@ void Game::handleGrenadeThrow() {
 
     auto grenade = std::unique_ptr<ThrowableWeapon>(dynamic_cast<ThrowableWeapon*>(clonedWeapon.release()));
 
-    if (grenade) {
-        grenade->throwAt(mouseWorld);
-        mActiveGrenades.push_back(std::move(grenade));
+    if (!grenade) {
+        // This indicates a logic error in your inventory system
+        throw GameException("Logic Error: Attempted to throw a non-throwable weapon.");
     }
+
+    grenade->throwAt(mouseWorld);
+    mActiveGrenades.push_back(std::move(grenade));
+    mGrenadeCooldown.restart();
 }
 
 void Game::update(sf::Time deltaTime) {
@@ -340,7 +345,8 @@ void Game::handleEnemySpawning(sf::Time deltaTime) {
 
     if (totalTime < 30.f) mSpawnInterval = 2.5f;
     else if (totalTime < 60.f) mSpawnInterval = 1.5f;
-    else mSpawnInterval = 0.8f;
+    else if (totalTime < 90.f) mSpawnInterval = 0.8f;
+    else mSpawnInterval = 0.6f;
 
     if (mSpawnTimer >= mSpawnInterval) {
         spawnOneEnemy();

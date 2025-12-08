@@ -1,5 +1,6 @@
 #include "../header/Weapon.h"
 #include <iostream>
+#include "../header/GameException.h"
 
 // Constructors
 Weapon::Weapon()
@@ -45,16 +46,13 @@ Weapon& Weapon::operator=(const Weapon& other) {
 
 // Visual Logic
 void Weapon::loadTexture(const std::string& path) {
-    if (mTexture.loadFromFile(path)) {
-        mSprite.setTexture(mTexture, true);
-        mSprite.setOrigin({
-            static_cast<float>(mTexture.getSize().x) / 2.f,
-            static_cast<float>(mTexture.getSize().y) / 2.f
-        });
-        std::cout << "SUCCESS: Weapon texture loaded: " << path << "\n";
-    } else {
-        std::cerr << "ERROR: Failed to load weapon texture: " << path << "\n";
+    if (!mTexture.loadFromFile(path)) {
+        throw AssetLoadException("Weapon Texture (" + name + ")", path);
     }
+    mSprite.setTexture(mTexture, true);
+    mSprite.setOrigin({
+        static_cast<float>(mTexture.getSize().x) / 2.f,
+        static_cast<float>(mTexture.getSize().y) / 2.f});
 }
 
 void Weapon::setVisualSize(float width, float height) {

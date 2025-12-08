@@ -1,9 +1,9 @@
 #include "../header/HUD.h"
-#include <stdexcept>
 #include <string>
 #include <sstream>
 #include <iomanip>
-#include <cstdint> // <--- REQUIRED for std::uint8_t in SFML 3
+#include <cstdint>
+#include "../header/GameException.h"
 
 HUD::HUD(std::string fontPath)
 : mFontPath(std::move(fontPath)),
@@ -18,7 +18,7 @@ HUD::HUD(std::string fontPath)
   mPreviousHealth(100.f)
 {
     if (!mFont.openFromFile(mFontPath))
-        throw std::runtime_error("Failed to load font: " + mFontPath);
+        throw AssetLoadException("HUD Font", mFontPath);
 
     // Setup Health
     mPlayerHealthText.setCharacterSize(24);

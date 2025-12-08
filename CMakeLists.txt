@@ -77,6 +77,8 @@ add_executable(${PROJECT_NAME}
         source/Projectile.cpp
         header/ThrowableWeapon.h
         source/ThrowableWeapon.cpp
+        header/GameException.h
+        source/GameException.cpp
 )
 
 include(cmake/CompilerFlags.cmake)

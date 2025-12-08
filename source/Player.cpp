@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <SFML/System/Angle.hpp>
-
+#include "../header/GameException.h"
 
 Player::Player()
     : mRangedWeapon(),
@@ -13,7 +13,7 @@ Player::Player()
     mMovementSpeed = 150.f;
 
     if (!mTexture.loadFromFile("../assets/player.png"))
-        throw std::runtime_error("Failed to load player texture");
+        throw AssetLoadException("Player Texture", "../assets/player.png");
 
     std::cout << "Player texture size: " << mTexture.getSize().x
               << " x " << mTexture.getSize().y << std::endl;
