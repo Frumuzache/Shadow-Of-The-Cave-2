@@ -343,7 +343,7 @@ namespace MathHelper {
 - **Fișiere sursă:** 15+
 - **Design patterns:** 4+
 - **Ierarhii de moștenire:** 2 majore + 1 excepții
-- **Procent C++:** ~90%
+- **Procent C++:** ~85%
 
 ## 🚀 Instrucțiuni de Compilare și Rulare
 
@@ -500,13 +500,6 @@ Acest proiect este realizat în scop educațional pentru cursul de POO.
 5. **Cumpără upgrade-uri** cu tastele 1-4
 6. **Folosește consumabile** cu P și L
 7. **Aruncă grenade** cu Left Click (dacă ai în inventar)
-
-
-## 📞 Contact
-
-Pentru întrebări sau sugestii:
-- **GitHub Issues:** [Link către repository]
-- **Email:** [Email student]
 
 ---
 

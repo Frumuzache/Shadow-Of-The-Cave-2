@@ -8,6 +8,10 @@ public:
     explicit HUD(std::string fontPath);
     ~HUD();  // Destructor to clean up dynamically allocated Text objects
 
+    // Delete copy constructor and assignment operator (rule of five)
+    HUD(const HUD&) = delete;
+    HUD& operator=(const HUD&) = delete;
+
     void update(const Player& player, const sf::RenderWindow& window, sf::Time deltaTime, int coins, const Inventory& inventory);
 
     void render(sf::RenderWindow& window) const;

@@ -10,14 +10,12 @@
 // Default Constructor
 Enemy::Enemy()
     : Entity(200.f, 50.f),
-      mWeapon(nullptr),
+      mWeapon(std::make_unique<MeleeWeapon>("Zombie Claws", 15.f, 1.0f, 80.f)),
       mEnemyType(EnemyType::Melee),
       mDirection(0.f, 0.f),
       initialPosition(100.f, 100.f),
       mGame(nullptr)
 {
-    // Initialize with melee weapon by default
-    mWeapon = std::make_unique<MeleeWeapon>("Zombie Claws", 15.f, 1.0f, 80.f);
 
     loadAssets();
     mSprite.setPosition(initialPosition);
@@ -34,18 +32,15 @@ Enemy::Enemy()
 // Parameterized Constructor
 Enemy::Enemy(const sf::Vector2f startPosition, const float speed, const float health, EnemyType type)
     : Entity(speed, health),
-      mWeapon(nullptr),
+      mWeapon(type == EnemyType::Melee ?
+              std::unique_ptr<Weapon>(std::make_unique<MeleeWeapon>("Zombie Claws", 15.f, 1.0f, 80.f)) :
+              std::unique_ptr<Weapon>(std::make_unique<RangedWeapon>("Skeleton Bow", 20.f, 1.5f, 500.f))),
       mEnemyType(type),
       mDirection(0.f, 0.f),
       initialPosition(startPosition),
       mGame(nullptr)
 {
-    // Initialize weapon based on enemy type
-    if (mEnemyType == EnemyType::Melee) {
-        mWeapon = std::make_unique<MeleeWeapon>("Zombie Claws", 15.f, 1.0f, 80.f);
-    } else {
-        // For Ranged: Create a placeholder - RangedEnemy will override with initializeRifle()
-        mWeapon = std::make_unique<RangedWeapon>("Skeleton Bow", 20.f, 1.5f, 500.f);
+    if (mEnemyType == EnemyType::Ranged) {
         std::cout << "DEBUG: Enemy created as Ranged type - placeholder weapon set\n";
     }
 
@@ -153,7 +148,7 @@ void Enemy::tryAttack() {
 void Enemy::fireProjectile() {
     if (!mGame) return; // Safety check
 
-    Player& player = Player::getInstance();
+    const Player& player = Player::getInstance();
     sf::Vector2f playerPos = player.getPlayerPosition();
     sf::Vector2u pSize = player.getTextureSize();
     sf::Vector2f playerCenter = playerPos + sf::Vector2f(static_cast<float>(pSize.x) * 0.5f, static_cast<float>(pSize.y) * 0.5f);
@@ -184,7 +179,7 @@ EnemyType Enemy::getEnemyType() const {
 void Enemy::updateWeaponRotation() {
     if (!mWeapon) return;
 
-    Player& player = Player::getInstance();
+    const Player& player = Player::getInstance();
     sf::Vector2f playerPos = player.getPlayerPosition();
     sf::Vector2u pSize = player.getTextureSize();
     sf::Vector2f playerCenter = playerPos + sf::Vector2f(static_cast<float>(pSize.x) * 0.5f, static_cast<float>(pSize.y) * 0.5f);
@@ -219,7 +214,7 @@ void Enemy::updateMovementEnemy(sf::Time deltaTime, const sf::Vector2f& mapBound
     sf::Vector2f direction = playerCenter - enemyCenter;
 
     // ✨ TEMPLATE FUNCTION INSTANTIATION 3: distance<float>
-    float distance = MathHelper::distance<float>(playerCenter, enemyCenter);
+    auto distance = MathHelper::distance<float>(playerCenter, enemyCenter);
 
     sf::Vector2f movement(0.f, 0.f);
 
