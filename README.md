@@ -6,6 +6,8 @@
 
 ### 🎯 Conceptul Jocului
 
+https://github.com/user-attachments/assets/4beb0099-02e0-4e95-9ebd-694a60151018
+
 Ești un erou blocat într-o peșteră întunecată, înconjurat de hoardele de inamici. Trebuie să supraviețuiești cât mai mult timp posibil, să acumulezi monede din fiecare inamic ucis și să folosești sistemul de magazin pentru a cumpăra upgrade-uri și consumabile care te vor ajuta în luptă.
 
 ### ✨ Caracteristici Principale
