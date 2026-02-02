@@ -1,3 +1,15 @@
+/**
+ * @file Entity.cpp
+ * @brief Implementation of the Entity base class
+ *
+ * Implements common functionality for all game entities:
+ * - Position and bounds queries
+ * - Health management
+ * - Sprite handling
+ *
+ * @see Entity.h
+ */
+
 #include "../header/Entity.h"
 #include <ostream>
 

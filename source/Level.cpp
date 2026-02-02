@@ -1,3 +1,14 @@
+/**
+ * @file Level.cpp
+ * @brief Implementation of the Level class
+ *
+ * Implements level management including:
+ * - Background texture loading
+ * - Level rendering
+ *
+ * @see Level.h
+ */
+
 #include "../header/Level.h"
 #include <stdexcept>
 #include <utility>

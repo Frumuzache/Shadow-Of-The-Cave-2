@@ -1,3 +1,15 @@
+/**
+ * @file MeleeEnemy.cpp
+ * @brief Implementation of the MeleeEnemy class
+ *
+ * Implements melee-specific enemy behavior:
+ * - Higher health and speed
+ * - Close-range melee weapon
+ * - Direct charging at player
+ *
+ * @see MeleeEnemy.h, Enemy.h
+ */
+
 #include "../header/MeleeEnemy.h"
 
 // Default Constructor

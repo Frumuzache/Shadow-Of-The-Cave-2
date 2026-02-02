@@ -1,3 +1,16 @@
+/**
+ * @file MagicWeapon.cpp
+ * @brief Implementation of the MagicWeapon class
+ *
+ * Implements magic spell functionality:
+ * - Area damage around player
+ * - Duration-based spell casting
+ * - Tick-based damage application
+ * - Weapon cloning and upgrades
+ *
+ * @see MagicWeapon.h
+ */
+
 #include "../header/MagicWeapon.h"
 #include <iostream>
 

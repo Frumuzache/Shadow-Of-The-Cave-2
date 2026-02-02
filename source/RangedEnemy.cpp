@@ -1,3 +1,16 @@
+/**
+ * @file RangedEnemy.cpp
+ * @brief Implementation of the RangedEnemy class
+ *
+ * Implements ranged-specific enemy behavior:
+ * - Lower health, slower movement
+ * - Long-range ranged weapon
+ * - Maintains distance from player
+ * - Fires projectiles at player
+ *
+ * @see RangedEnemy.h, Enemy.h
+ */
+
 #include "../header/RangedEnemy.h"
 #include "../header/RangedWeapon.h"
 #include <memory>

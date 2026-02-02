@@ -1,3 +1,18 @@
+/**
+ * @file HUD.cpp
+ * @brief Implementation of the HUD (Head-Up Display) class
+ *
+ * Implements on-screen information display including:
+ * - Player health display
+ * - Coins and currency tracking
+ * - Inventory display
+ * - Shop information
+ * - Damage feedback effects
+ * - Game over screen
+ *
+ * @see HUD.h
+ */
+
 #include "../header/HUD.h"
 #include <string>
 #include <sstream>
@@ -75,7 +90,9 @@ HUD::~HUD() {
 void HUD::update(const Player& player, const sf::RenderWindow& window, sf::Time deltaTime, int coins, const Inventory& inventory) {
     // 1. Update Health
     float currentHealth = player.getCurrentHealth();
-    mPlayerHealthText->setString("Health: " + std::to_string(static_cast<int>(currentHealth)));
+    std::ostringstream healthStream;
+    healthStream << "Health: " << static_cast<int>(currentHealth);
+    mPlayerHealthText->setString(healthStream.str());
 
     // 2. Damage Flash Logic
     if (currentHealth < mPreviousHealth) {
@@ -118,10 +135,16 @@ void HUD::update(const Player& player, const sf::RenderWindow& window, sf::Time 
     mTimerText->setPosition({static_cast<float>(windowSize.x) / 2.0f, 30.f});
 
     // 5. Update Coins/Inventory Display (top-right)
-    mCoinsText->setString("Coins: " + std::to_string(coins));
-    mInventoryText->setString("Potions: " + std::to_string(inventory.getHealthPotionCount()) +
-                              " | Grenades: " + std::to_string(inventory.getGrenadeCount()) +
-                              " | Magic: " + std::to_string(inventory.getDamagePotionCount()));
+    std::ostringstream coinsStream;
+    coinsStream << "Coins: " << coins;
+    mCoinsText->setString(coinsStream.str());
+
+    std::ostringstream inventoryStream;
+    inventoryStream << "Potions: " << inventory.getHealthPotionCount()
+                    << " | Grenades: " << inventory.getGrenadeCount()
+                    << " | Magic: " << inventory.getDamagePotionCount();
+    mInventoryText->setString(inventoryStream.str());
+
 
     sf::Vector2u winSize = window.getSize();
     sf::FloatRect coinsBounds = mCoinsText->getLocalBounds();

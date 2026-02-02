@@ -1,3 +1,16 @@
+/**
+ * @file RangedWeapon.cpp
+ * @brief Implementation of the RangedWeapon class
+ *
+ * Implements ranged weapon functionality:
+ * - Moderate damage, moderate reload time
+ * - Long attack range
+ * - Fires projectiles
+ * - Weapon cloning and upgrades
+ *
+ * @see RangedWeapon.h
+ */
+
 #include "../header/RangedWeapon.h"
 #include <iostream>
 #include <exception>

@@ -1,3 +1,15 @@
+/**
+ * @file MeleeWeapon.cpp
+ * @brief Implementation of the MeleeWeapon class
+ *
+ * Implements melee weapon functionality:
+ * - High damage, quick reload
+ * - Short attack range
+ * - Weapon cloning and upgrades
+ *
+ * @see MeleeWeapon.h
+ */
+
 #include "../header/MeleeWeapon.h"
 #include <iostream>
 #include <exception>

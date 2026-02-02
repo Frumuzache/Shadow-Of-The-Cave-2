@@ -1,3 +1,15 @@
+/**
+ * @file Weapon.cpp
+ * @brief Implementation of the Weapon base class
+ *
+ * Implements common weapon functionality:
+ * - Texture loading and rendering
+ * - Damage and property management
+ * - Copy semantics (Rule of Five)
+ *
+ * @see Weapon.h
+ */
+
 #include "../header/Weapon.h"
 #include <iostream>
 #include "../header/GameException.h"

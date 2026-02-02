@@ -1,3 +1,17 @@
+/**
+ * @file Player.cpp
+ * @brief Implementation of the Player class
+ *
+ * Implements the player character including:
+ * - Singleton pattern management
+ * - Movement and rotation
+ * - Weapon management
+ * - Health and damage handling
+ * - Rendering
+ *
+ * @see Player.h
+ */
+
 #include "../header/Player.h"
 #include <cmath>
 #include <iostream>

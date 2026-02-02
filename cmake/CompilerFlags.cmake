@@ -17,6 +17,10 @@ if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /permissive- /wd4244 /wd4267 /wd4996 /external:anglebrackets /external:W0 /utf-8 /MP)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
+    # GCC 13 workaround for format/chrono internal compiler error
+    if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "13")
+        target_compile_options(${PROJECT_NAME} PRIVATE -O0)
+    endif()
 endif()
 
 ###############################################################################

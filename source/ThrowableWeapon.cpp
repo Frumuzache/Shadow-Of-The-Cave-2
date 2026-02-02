@@ -1,3 +1,16 @@
+/**
+ * @file ThrowableWeapon.cpp
+ * @brief Implementation of the ThrowableWeapon class
+ *
+ * Implements throwable weapon (grenade) functionality:
+ * - Explosion mechanics with fuse timer
+ * - Area damage on detonation
+ * - Explosion visualization
+ * - Weapon cloning and upgrades
+ *
+ * @see ThrowableWeapon.h
+ */
+
 #include "../header/ThrowableWeapon.h"
 #include <iostream>
 #include <SFML/System/Angle.hpp>

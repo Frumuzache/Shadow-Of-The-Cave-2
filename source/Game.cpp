@@ -1,3 +1,18 @@
+/**
+ * @file Game.cpp
+ * @brief Implementation of the Game class
+ *
+ * Implements the main game engine including:
+ * - Game loop and rendering
+ * - Collision detection
+ * - Enemy spawning and management
+ * - Projectile management with object pooling
+ * - Shop system
+ * - HUD updates
+ *
+ * @see Game.h
+ */
+
 #include <SFML/Graphics.hpp>
 #include "../header/Game.h"
 #include "../header/Player.h"

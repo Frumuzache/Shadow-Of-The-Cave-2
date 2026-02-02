@@ -1,4 +1,17 @@
+/**
+ * @file GameException.cpp
+ * @brief Implementation of custom game exception classes
+ *
+ * Implements exception classes for:
+ * - Game configuration errors
+ * - Asset loading failures
+ * - Invalid entity statistics
+ *
+ * @see GameException.h
+ */
+
 #include "../header/GameException.h"
+#include <sstream>
 
 
 // We prefix it with "Game Error: " to distinguish it from system errors
@@ -18,4 +31,8 @@ GameConfigException::GameConfigException(const std::string& component, const std
     : GameException("Configuration Error in [" + component + "]: " + reason) {}
 
 InvalidStatException::InvalidStatException(const std::string& context, const std::string& statName, const float value)
-    : GameException("Invalid Stat in " + context + " -> " + statName + " cannot be " + std::to_string(value)) {}
+    : GameException([&] {
+        std::ostringstream oss;
+        oss << "Invalid Stat in " << context << " -> " << statName << " cannot be " << value;
+        return oss.str();
+    }()) {}

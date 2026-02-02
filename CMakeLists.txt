@@ -90,6 +90,7 @@ add_executable(${PROJECT_NAME}
         header/Inventory.h
         source/Inventory.cpp
         source/RangedEnemy.cpp
+        source/HealthPotion.cpp
 )
 
 include(cmake/CompilerFlags.cmake)

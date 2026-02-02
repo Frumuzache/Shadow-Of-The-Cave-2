@@ -1,3 +1,17 @@
+/**
+ * @file Enemy.cpp
+ * @brief Implementation of the Enemy base class
+ *
+ * Implements enemy AI including:
+ * - Movement towards player
+ * - Weapon management and attacks
+ * - Health and collision with projectiles
+ * - Health bar rendering
+ * - Projectile firing (for ranged enemies)
+ *
+ * @see Enemy.h, MeleeEnemy.h, RangedEnemy.h
+ */
+
 #include "../header/Enemy.h"
 #include "../header/Player.h" // Required to access Player singleton
 #include "../header/Game.h"   // For fireProjectile() to access mEnemyProjectiles

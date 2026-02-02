@@ -1,3 +1,16 @@
+/**
+ * @file EnemyProjectile.cpp
+ * @brief Implementation of the EnemyProjectile class
+ *
+ * Implements enemy projectiles including:
+ * - Projectile movement and physics
+ * - Boundary checking
+ * - Rendering (red color for distinction)
+ * - Collision detection
+ *
+ * @see EnemyProjectile.h
+ */
+
 #include "../header/EnemyProjectile.h"
 
 EnemyProjectile::EnemyProjectile()

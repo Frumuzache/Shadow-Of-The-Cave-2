@@ -1,3 +1,16 @@
+/**
+ * @file Projectile.cpp
+ * @brief Implementation of the Projectile class
+ *
+ * Implements player projectiles including:
+ * - Projectile movement and physics
+ * - Boundary checking
+ * - Rendering
+ * - Collision detection
+ *
+ * @see Projectile.h
+ */
+
 #include "../header/Projectile.h"
 
 Projectile::Projectile()

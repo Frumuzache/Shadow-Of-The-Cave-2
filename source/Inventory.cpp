@@ -1,3 +1,15 @@
+/**
+ * @file Inventory.cpp
+ * @brief Implementation of the Inventory class
+ *
+ * Implements inventory management including:
+ * - Adding and removing consumable items
+ * - Item usage and constraints
+ * - Quantity tracking (max 99 per item type)
+ *
+ * @see Inventory.h
+ */
+
 #include "../header/Inventory.h"
 #include <algorithm>
 #include <iostream>
