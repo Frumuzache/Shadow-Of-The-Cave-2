@@ -31,7 +31,7 @@ HUD::HUD(std::string fontPath)
     mTimerText.setFillColor(sf::Color::White);
 
     // Setup Game Over
-    mGameOverText.setString("ZERO COMUNICARE DOMU STUDENT");
+    mGameOverText.setString("GAME OVER");
     mGameOverText.setCharacterSize(72);
     mGameOverText.setFillColor(sf::Color::Red);
     mGameOverText.setStyle(sf::Text::Bold);

@@ -67,6 +67,10 @@ add_executable(${PROJECT_NAME}
         source/HUD.cpp
         header/Enemy.h
         source/Enemy.cpp
+        header/MeleeEnemy.h
+        source/MeleeEnemy.cpp
+        header/RangedEnemy.h
+        source/RangedEnemy.cpp
         header/Weapon.h
         source/Weapon.cpp
         header/MeleeWeapon.h
@@ -75,12 +79,15 @@ add_executable(${PROJECT_NAME}
         source/RangedWeapon.cpp
         header/Projectile.h
         source/Projectile.cpp
+        header/EnemyProjectile.h
+        source/EnemyProjectile.cpp
         header/ThrowableWeapon.h
         source/ThrowableWeapon.cpp
         header/GameException.h
         source/GameException.cpp
         header/MagicWeapon.h
         source/MagicWeapon.cpp
+        source/RangedEnemy.cpp
 )
 
 include(cmake/CompilerFlags.cmake)

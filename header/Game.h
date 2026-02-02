@@ -8,13 +8,21 @@
 #include "HUD.h"
 #include "Level.h"
 #include "Enemy.h"
+#include "MeleeEnemy.h"
+#include "RangedEnemy.h"
 #include "Projectile.h"
+#include "EnemyProjectile.h"
 #include "ThrowableWeapon.h"
 
 class Game {
 public:
     Game(unsigned int width, unsigned int height, const std::string& title);
     void run();
+
+    // Public method for enemies to fire projectiles
+    void addEnemyProjectile(const EnemyProjectile& projectile) {
+        mEnemyProjectiles.push_back(projectile);
+    }
 
 private:
     friend std::ostream& operator<<(std::ostream& os, const Game& game);
@@ -32,6 +40,7 @@ private:
 
     void updateCamera();
     void updateProjectiles(sf::Time deltaTime);
+    void updateEnemyProjectiles(sf::Time deltaTime);
 
     // Grenade Update Logic
     void updateGrenades(sf::Time deltaTime);
@@ -53,6 +62,7 @@ private:
 
     std::vector<std::unique_ptr<Entity>> mEnemies;
     std::vector<Projectile> mProjectiles;
+    std::vector<EnemyProjectile> mEnemyProjectiles;
 
     // --- Added missing variables to fix Game.cpp errors ---
     std::vector<std::unique_ptr<ThrowableWeapon>> mActiveGrenades;

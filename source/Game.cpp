@@ -24,10 +24,19 @@ Game::Game(unsigned int width, unsigned int height, const std::string& title)
 
     mWindow.setFramerateLimit(120);
 
-    // Initialize first Enemies
-    mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(300.f, 100.f), 175.f, 75.f));
-    mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(600.f, 400.f), 175.f, 75.f));
-    mEnemies.push_back(std::make_unique<Enemy>(sf::Vector2f(900.f, 700.f), 175.f, 75.f));
+    // Initialize first Enemies (mix of Melee and Ranged)
+    auto melee1 = std::make_unique<MeleeEnemy>(sf::Vector2f(300.f, 100.f));
+    melee1->setGameReference(this);
+    mEnemies.push_back(std::move(melee1));
+
+    // Spawn ranged enemy far away (corner of map) - distance > 5500px from player start
+    auto ranged1 = std::make_unique<RangedEnemy>(sf::Vector2f(2950.f, 2950.f));
+    ranged1->setGameReference(this);
+    mEnemies.push_back(std::move(ranged1));
+
+    auto melee2 = std::make_unique<MeleeEnemy>(sf::Vector2f(900.f, 700.f));
+    melee2->setGameReference(this);
+    mEnemies.push_back(std::move(melee2));
 
     // Initialize World & View
     mWorldSize = sf::Vector2f(3000.f, 3000.f);
@@ -185,6 +194,7 @@ void Game::update(sf::Time deltaTime) {
     }
 
     updateProjectiles(deltaTime);
+    updateEnemyProjectiles(deltaTime);
     updateGrenades(deltaTime);
 
     resolveEnemyCollisions();
@@ -230,6 +240,12 @@ void Game::updateProjectiles(sf::Time deltaTime) {
     }
 }
 
+void Game::updateEnemyProjectiles(sf::Time deltaTime) {
+    for (auto& proj : mEnemyProjectiles) {
+        proj.update(deltaTime, mWorldSize);
+    }
+}
+
 void Game::updateCamera() {
     sf::Vector2f targetPos = mPlayer.getPlayerPosition();
     sf::Vector2u playerSize = mPlayer.getTextureSize();
@@ -251,6 +267,7 @@ void Game::updateCamera() {
 }
 
 void Game::checkCollisions() {
+    // Check collisions for player projectiles with enemies
     for (auto& proj : mProjectiles) {
         if (proj.isDestroyed()) continue;
 
@@ -263,6 +280,17 @@ void Game::checkCollisions() {
                 proj.destroy();
                 break;
             }
+        }
+    }
+
+    // Check collisions for enemy projectiles with player
+    sf::FloatRect playerBounds = mPlayer.getGlobalBounds();
+    for (auto& enemyProj : mEnemyProjectiles) {
+        if (enemyProj.isDestroyed()) continue;
+
+        if (enemyProj.getBounds().findIntersection(playerBounds)) {
+            mPlayer.takeDamage(enemyProj.getDamage());
+            enemyProj.destroy();
         }
     }
 }
@@ -324,6 +352,10 @@ void Game::cleanupEntities() {
         return p.isDestroyed();
     });
 
+    std::erase_if(mEnemyProjectiles, [](const EnemyProjectile& p) {
+        return p.isDestroyed();
+    });
+
     std::erase_if(mActiveGrenades, [](const auto& g) {
         return g->isFinished();
     });
@@ -368,6 +400,7 @@ void Game::render() {
 
     for (const auto& enemy : mEnemies) enemy->render(mWindow);
     for (const auto& proj : mProjectiles) proj.render(mWindow);
+    for (const auto& enemyProj : mEnemyProjectiles) enemyProj.render(mWindow);
     for (const auto& g : mActiveGrenades) g->render(mWindow);
 
     mWindow.setView(mWindow.getDefaultView());
@@ -401,6 +434,7 @@ void Game::spawnOneEnemy() {
     static std::mt19937 gen(rd());
     std::uniform_real_distribution<float> distX(100.f, mWorldSize.x - 100.f);
     std::uniform_real_distribution<float> distY(100.f, mWorldSize.y - 100.f);
+    std::uniform_int_distribution<int> typeSelector(0, 1); // 0 = Melee, 1 = Ranged
 
     sf::Vector2f spawnPos;
     sf::Vector2f playerPos = mPlayer.getPlayerPosition();
@@ -418,7 +452,22 @@ void Game::spawnOneEnemy() {
         attempts++;
     }
 
-    mEnemies.push_back(std::make_unique<Enemy>(spawnPos, 175.f, 75.f));
+    // Randomly select enemy type
+    EnemyType enemyType = (typeSelector(gen) == 0) ? EnemyType::Melee : EnemyType::Ranged;
+
+    // Spawn with different stats based on type
+    std::unique_ptr<Enemy> newEnemy;
+    if (enemyType == EnemyType::Melee) {
+        // Melee: Higher HP, faster, closer range
+        newEnemy = std::make_unique<MeleeEnemy>(spawnPos);
+    } else {
+        // Ranged: Lower HP, slower, longer range (handled by weapon stats)
+        newEnemy = std::make_unique<RangedEnemy>(spawnPos);
+    }
+
+    // Set game reference before adding to vector
+    newEnemy->setGameReference(this);
+    mEnemies.push_back(std::move(newEnemy));
 }
 
 std::ostream& operator<<(std::ostream& os, const Game& game) {
