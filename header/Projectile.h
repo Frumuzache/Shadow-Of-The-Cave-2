@@ -3,6 +3,7 @@
 
 class Projectile {
 public:
+    Projectile();  // Default constructor for pooling
     Projectile(sf::Vector2f startPos, sf::Vector2f direction, float speed, float damage);
 
     void update(sf::Time deltaTime, const sf::Vector2f& mapBounds);

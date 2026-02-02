@@ -99,6 +99,10 @@ float Weapon::getReloadTime() const { return reloadTime; }
 float Weapon::getRange() const { return range; }
 const std::string& Weapon::getName() const { return name; }
 void Weapon::setScale(float scale) { mSprite.setScale({scale, scale}); }
+void Weapon::setDamage(float newDamage) {
+    damage = newDamage;
+    std::cout << name << " damage updated to: " << damage << "\n";
+}
 
 
 

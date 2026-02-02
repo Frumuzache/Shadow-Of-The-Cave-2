@@ -87,6 +87,8 @@ add_executable(${PROJECT_NAME}
         source/GameException.cpp
         header/MagicWeapon.h
         source/MagicWeapon.cpp
+        header/Inventory.h
+        source/Inventory.cpp
         source/RangedEnemy.cpp
 )
 

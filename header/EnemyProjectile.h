@@ -9,6 +9,7 @@
  */
 class EnemyProjectile {
 public:
+    EnemyProjectile();  // Default constructor for pooling
     EnemyProjectile(sf::Vector2f startPos, sf::Vector2f direction, float speed, float damage);
 
     void update(sf::Time deltaTime, const sf::Vector2f& mapBounds);

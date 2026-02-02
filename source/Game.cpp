@@ -13,11 +13,22 @@ Game::Game(unsigned int width, unsigned int height, const std::string& title)
       mLevel("../assets/background.png", sf::Vector2f(3000.f, 3000.f)),
       mHUD("../assets/arial.ttf"),
       mPlayer(Player::getInstance()),
+      mGrenadeCooldown{},
+      mGrenadeTexture(),
       mClock{},
+      mSurvivalClock{},
+      mUpgradeClock{},
       mSpawnTimer(0.f),
       mSpawnInterval(3.0f),
-      mIsGameOver(false)
+      mIsGameOver(false),
+      // ✨ TEMPLATE CLASS INSTANTIATION 1 & 2 INITIALIZATION
+      mProjectilePool(20),           // Pre-allocate 20 player projectiles
+      mEnemyProjectilePool(30)       // Pre-allocate 30 enemy projectiles
 {
+    std::cout << "\n=== TEMPLATE CLASSES INITIALIZED ===\n";
+    std::cout << "Projectile Pool: " << mProjectilePool.getAvailableCount() << " objects\n";
+    std::cout << "EnemyProjectile Pool: " << mEnemyProjectilePool.getAvailableCount() << " objects\n";
+    std::cout << "====================================\n\n";
     if (width == 0 || height == 0) {
         throw GameConfigException("Window", "Dimensions cannot be zero.");
     }
@@ -85,8 +96,15 @@ void Game::handleInput() {
         handleGrenadeThrow();
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::K)) {
-        mPlayer.getMagicWeapon().castSpell();
+        if (mMagicUnlocked) {
+            mPlayer.getMagicWeapon().castSpell();
+        } else {
+            std::cout << "Magic weapon not purchased yet!\n";
+        }
     }
+
+    // Handle shop inputs
+    handleShopInput();
 }
 
 void Game::handleShooting() {
@@ -156,6 +174,13 @@ void Game::handleMeleeAttack() const {
 
 void Game::handleGrenadeThrow() {
     if (mGrenadeCooldown.getElapsedTime().asSeconds() < 2.0f) return;
+
+    // Check if player has grenades in inventory
+    if (!mInventory.useGrenade()) {
+        std::cout << "No grenades in inventory!\n";
+        return;
+    }
+
     mGrenadeCooldown.restart();
 
     sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
@@ -173,7 +198,7 @@ void Game::handleGrenadeThrow() {
 
     grenade->throwAt(mouseWorld);
     mActiveGrenades.push_back(std::move(grenade));
-    mGrenadeCooldown.restart();
+    std::cout << "Grenade thrown! Remaining: " << mInventory.getGrenadeCount() << "\n";
 }
 
 void Game::update(sf::Time deltaTime) {
@@ -185,7 +210,7 @@ void Game::update(sf::Time deltaTime) {
     mWindow.setView(mView);
 
     mPlayer.update(deltaTime, mWorldSize, mWindow);
-    mHUD.update(mPlayer, mWindow, deltaTime, mScore);
+    mHUD.update(mPlayer, mWindow, deltaTime, mCoins, mInventory);
 
     handleEnemySpawning(deltaTime);
 
@@ -342,7 +367,8 @@ void Game::cleanupEntities() {
     std::erase_if(mEnemies, [this](const auto& enemy) {
         if (enemy->getCurrentHealth() <= 0) {
             Enemy::death();
-            mScore+=30;
+            mCoins += 10;  // Award 10 coins for each kill
+            std::cout << "Enemy killed! +10 Coins. Total: " << mCoins << "\n";
             return true;
         }
         return false;
@@ -468,6 +494,129 @@ void Game::spawnOneEnemy() {
     // Set game reference before adding to vector
     newEnemy->setGameReference(this);
     mEnemies.push_back(std::move(newEnemy));
+}
+
+// Shop system implementation
+void Game::handleShopInput() {
+    // Key bindings for shop:
+    // 1 - Buy Grenade
+    // 2 - Buy Health Potion
+    // 3 - Buy Damage Boost
+    // 4 - Buy Magic Damage
+    // Left Mouse - Use Grenade
+    // P - Use Health Potion
+    // L - Use Magic Damage
+
+    static sf::Clock shopCooldown;
+    const float SHOP_COOLDOWN = 0.3f;  // Prevent spam
+
+    if (shopCooldown.getElapsedTime().asSeconds() < SHOP_COOLDOWN) return;
+
+    // BUY inputs (number keys)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1)) {
+        buyGrenade();
+        shopCooldown.restart();
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2)) {
+        buyHealthPotion();
+        shopCooldown.restart();
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3)) {
+        buyDamageBoost();
+        shopCooldown.restart();
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4)) {
+        buyMagicDamage();
+        shopCooldown.restart();
+    }
+
+    // USE inputs
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P)) {
+        useHealthPotion();
+        shopCooldown.restart();
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::L)) {
+        useMagicDamage();
+        shopCooldown.restart();
+    }
+    // Grenade usage is handled by left mouse click in handleGrenadeThrow()
+}
+
+void Game::buyGrenade() {
+    if (mCoins >= GRENADE_COST) {
+        mCoins -= GRENADE_COST;
+        mInventory.addGrenade(1);
+        std::cout << "Grenade purchased! Cost: " << GRENADE_COST << " Coins. Remaining: " << mCoins << "\n";
+    } else {
+        std::cout << "Not enough coins! Need " << GRENADE_COST << " coins, have " << mCoins << "\n";
+    }
+}
+
+void Game::buyHealthPotion() {
+    if (mCoins >= HEALTH_POTION_COST) {
+        mCoins -= HEALTH_POTION_COST;
+        mInventory.addHealthPotion(1);
+        std::cout << "Health Potion purchased! Cost: " << HEALTH_POTION_COST << " Coins. Remaining: " << mCoins << "\n";
+    } else {
+        std::cout << "Not enough coins! Need " << HEALTH_POTION_COST << " coins, have " << mCoins << "\n";
+    }
+}
+
+void Game::buyDamageBoost() {
+    if (mCoins >= DAMAGE_BOOST_COST) {
+        mCoins -= DAMAGE_BOOST_COST;
+        std::cout << "Damage Boost purchased! Cost: " << DAMAGE_BOOST_COST << " Coins. Remaining: " << mCoins << "\n";
+
+        // Apply 10% damage boost to all weapons
+        float meleeOldDamage = mPlayer.getMeleeWeapon().getDamage();
+        float rangedOldDamage = mPlayer.getRangedWeapon().getDamage();
+
+        mPlayer.getMeleeWeapon().setDamage(meleeOldDamage * DAMAGE_BOOST_MULTIPLIER);
+        mPlayer.getRangedWeapon().setDamage(rangedOldDamage * DAMAGE_BOOST_MULTIPLIER);
+
+        std::cout << "All weapons boosted by 10%!\n";
+        std::cout << "Melee: " << meleeOldDamage << " -> " << mPlayer.getMeleeWeapon().getDamage() << "\n";
+        std::cout << "Ranged: " << rangedOldDamage << " -> " << mPlayer.getRangedWeapon().getDamage() << "\n";
+    } else {
+        std::cout << "Not enough coins! Need " << DAMAGE_BOOST_COST << " coins, have " << mCoins << "\n";
+    }
+}
+
+void Game::buyMagicDamage() {
+    if (mCoins >= MAGIC_DAMAGE_COST) {
+        mCoins -= MAGIC_DAMAGE_COST;
+        mInventory.addDamagePotion(1);
+        std::cout << "Magic Damage purchased! Cost: " << MAGIC_DAMAGE_COST << " Coins. Remaining: " << mCoins << "\n";
+    } else {
+        std::cout << "Not enough coins! Need " << MAGIC_DAMAGE_COST << " coins, have " << mCoins << "\n";
+    }
+}
+
+void Game::useHealthPotion() {
+    if (mInventory.useHealthPotion()) {
+        mPlayer.heal(20.f);  // Heals 20 HP
+        std::cout << "Health Potion used! +20 HP\n";
+    } else {
+        std::cout << "No health potions in inventory!\n";
+    }
+}
+
+void Game::useMagicDamage() {
+    if (mInventory.useDamagePotion()) {
+        // Damage all enemies using MagicWeapon
+        float magicDamage = 50.f;  // Base magic damage
+        std::cout << "Magic Damage activated! Damaging all enemies...\n";
+
+        int enemiesHit = 0;
+        for (auto& enemy : mEnemies) {
+            enemy->takeDamage(magicDamage);
+            enemiesHit++;
+        }
+
+        std::cout << "Magic Damage hit " << enemiesHit << " enemies for " << magicDamage << " damage each!\n";
+    } else {
+        std::cout << "No magic damage in inventory!\n";
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const Game& game) {

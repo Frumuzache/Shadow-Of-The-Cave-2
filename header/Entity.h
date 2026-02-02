@@ -25,6 +25,9 @@ public:
     virtual float getCurrentHealth() const;
     // float getMaxHealth() const;
 
+    // Damage handling
+    virtual void takeDamage(float damage);
+
     // operator<< for display
     friend std::ostream& operator<<(std::ostream& os, const Entity& entity);
 

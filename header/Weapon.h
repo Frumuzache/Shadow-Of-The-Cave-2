@@ -35,6 +35,7 @@ public:
     float getRange() const;
     const std::string& getName() const;
 
+    void setDamage(float newDamage);
     void setVisualSize(float width, float height);
 
     void setScale(float scale);

@@ -1,7 +1,6 @@
 #pragma once
 #include "Entity.h"
-#include "MeleeWeapon.h"
-#include "RangedWeapon.h"
+#include "Weapon.h"
 #include <SFML/System/Clock.hpp>
 #include <memory>
 
@@ -21,7 +20,7 @@ public:
 
     // Public Methods
     void update(sf::Time deltaTime, const sf::Vector2f& mapBounds, const sf::RenderWindow& window) override;
-    void takeDamage(float damageAmount);
+    void takeDamage(float damageAmount) override;
     static void death();
     void render(sf::RenderWindow &window) const override;
 
@@ -38,14 +37,16 @@ protected:
     // Protected Attributes (accessible by derived classes like RangedEnemy)
     std::unique_ptr<Weapon> mWeapon;    // Polymorphic weapon (Melee or Ranged)
     EnemyType mEnemyType;
+    sf::Vector2f mDirection;
+    sf::Vector2f initialPosition;
+    Game* mGame; // Reference to game for firing projectiles
 
 private:
     // Private Helper Methods
     void updateMovementEnemy(sf::Time deltaTime, const sf::Vector2f& mapBounds);
     void loadAssets();
-    void tryAttack(); // Logic to check range and deal damage
-    void tryProjectileAttack(); // For ranged enemies
-    void fireProjectile(); // Helper to fire projectile towards player
+    void tryAttack();
+    void fireProjectile();
     void updateWeaponRotation(); // Update weapon rotation towards player (for ranged enemies)
 
     sf::RectangleShape mHealthBarBackground;
@@ -54,10 +55,6 @@ private:
     // Helper to keep code clean
     void updateHealthBarVisuals();
 
-    // Private Attributes
-    sf::Vector2f mDirection;
-    sf::Vector2f initialPosition;
-    Game* mGame; // Reference to game for firing projectiles
 
     // Combat Attributes (Private)
     sf::Clock mAttackClock; // Tracks time since last attack

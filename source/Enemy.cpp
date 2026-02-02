@@ -5,15 +5,16 @@
 #include <iostream>
 #include <cmath>
 #include "../header/GameException.h"
+#include "../header/MathHelper.h"
 
 // Default Constructor
 Enemy::Enemy()
     : Entity(200.f, 50.f),
+      mWeapon(nullptr),
+      mEnemyType(EnemyType::Melee),
       mDirection(0.f, 0.f),
       initialPosition(100.f, 100.f),
-      mEnemyType(EnemyType::Melee),
-      mGame(nullptr),
-      mWeapon(nullptr)
+      mGame(nullptr)
 {
     // Initialize with melee weapon by default
     mWeapon = std::make_unique<MeleeWeapon>("Zombie Claws", 15.f, 1.0f, 80.f);
@@ -33,11 +34,11 @@ Enemy::Enemy()
 // Parameterized Constructor
 Enemy::Enemy(const sf::Vector2f startPosition, const float speed, const float health, EnemyType type)
     : Entity(speed, health),
+      mWeapon(nullptr),
+      mEnemyType(type),
       mDirection(0.f, 0.f),
       initialPosition(startPosition),
-      mEnemyType(type),
-      mGame(nullptr),
-      mWeapon(nullptr)
+      mGame(nullptr)
 {
     // Initialize weapon based on enemy type
     if (mEnemyType == EnemyType::Melee) {
@@ -216,7 +217,9 @@ void Enemy::updateMovementEnemy(sf::Time deltaTime, const sf::Vector2f& mapBound
     sf::Vector2f enemyCenter = enemyPos + sf::Vector2f(static_cast<float>(eSize.x) * 0.5f, static_cast<float>(eSize.y) * 0.5f);
 
     sf::Vector2f direction = playerCenter - enemyCenter;
-    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    // ✨ TEMPLATE FUNCTION INSTANTIATION 3: distance<float>
+    float distance = MathHelper::distance<float>(playerCenter, enemyCenter);
 
     sf::Vector2f movement(0.f, 0.f);
 
@@ -224,7 +227,9 @@ void Enemy::updateMovementEnemy(sf::Time deltaTime, const sf::Vector2f& mapBound
     if (mEnemyType == EnemyType::Melee) {
         // Melee enemies: Chase player aggressively
         if (distance > 5.0f) {
-            movement = (direction / distance) * mMovementSpeed * deltaTime.asSeconds();
+            // ✨ TEMPLATE FUNCTION INSTANTIATION 4: normalize<float>
+            sf::Vector2f normalizedDir = MathHelper::normalize<float>(direction);
+            movement = normalizedDir * mMovementSpeed * deltaTime.asSeconds();
         }
     } else {
         // Ranged enemies: Always approach until within 700px range, then STAY and shoot
@@ -233,7 +238,9 @@ void Enemy::updateMovementEnemy(sf::Time deltaTime, const sf::Vector2f& mapBound
 
         if (distance > firingRange) {
             // Too far! Move closer to get in range (ALWAYS APPROACH)
-            movement = (direction / distance) * mMovementSpeed * deltaTime.asSeconds();
+            // ✨ TEMPLATE FUNCTION INSTANTIATION 5: normalize<float>
+            sf::Vector2f normalizedDir = MathHelper::normalize<float>(direction);
+            movement = normalizedDir * mMovementSpeed * deltaTime.asSeconds();
 
             // Debug: Show when ranged enemy is approaching
             static int debugCounter = 0;

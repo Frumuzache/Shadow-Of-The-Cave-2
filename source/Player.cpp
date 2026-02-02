@@ -3,6 +3,7 @@
 #include <iostream>
 #include <SFML/System/Angle.hpp>
 #include "../header/GameException.h"
+#include "../header/MathHelper.h"
 
 Player::Player()
     : mRangedWeapon(),
@@ -114,9 +115,21 @@ MagicWeapon& Player::getMagicWeapon() { return mMagicWeapon; }
 void Player::takeDamage(const float damage) {
     if (currentHealth > 0) {
         currentHealth -= damage;
-        if (currentHealth < 0) currentHealth = 0;
+
+        // ✨ TEMPLATE FUNCTION INSTANTIATION 2: clamp<float>
+        currentHealth = MathHelper::clamp<float>(currentHealth, 0.0f, maxHealth);
+
         std::cout << "Player took damage! Current HP: " << currentHealth << "\n";
     }
+}
+
+void Player::heal(float amount) {
+    currentHealth += amount;
+
+    // ✨ TEMPLATE FUNCTION INSTANTIATION 1: clamp<float>
+    currentHealth = MathHelper::clamp<float>(currentHealth, 0.0f, maxHealth);
+
+    std::cout << "Player healed! Current HP: " << currentHealth << "/" << maxHealth << "\n";
 }
 
 bool Player::isDead() const {

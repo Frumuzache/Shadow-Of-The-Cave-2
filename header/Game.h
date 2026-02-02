@@ -13,6 +13,8 @@
 #include "Projectile.h"
 #include "EnemyProjectile.h"
 #include "ThrowableWeapon.h"
+#include "Inventory.h"
+#include "Pool.h"
 
 class Game {
 public:
@@ -51,6 +53,16 @@ private:
     void resolveEnemyCollisions() const;
     void cleanupEntities();
 
+    // Shop system methods
+    void handleShopInput();
+    void buyGrenade();
+    void buyHealthPotion();
+    void buyDamageBoost();
+    void buyMagicDamage();
+    void useHealthPotion();
+    void useGrenade();
+    void useMagicDamage();
+
     // Member Variables
     sf::RenderWindow mWindow;
     sf::View mView;
@@ -64,19 +76,36 @@ private:
     std::vector<Projectile> mProjectiles;
     std::vector<EnemyProjectile> mEnemyProjectiles;
 
-    // --- Added missing variables to fix Game.cpp errors ---
     std::vector<std::unique_ptr<ThrowableWeapon>> mActiveGrenades;
     sf::Clock mGrenadeCooldown;
     sf::Texture mGrenadeTexture;
 
     sf::Clock mClock;
     sf::Clock mSurvivalClock;
+    sf::Clock mUpgradeClock;
     float mSpawnTimer;
     float mSpawnInterval;
     bool mIsGameOver;
-    sf::Clock mUpgradeClock;
 
-    int mScore = 0;
+    // ✨ TEMPLATE CLASS INSTANTIATION 1: Pool<Projectile>
+    // ✨ TEMPLATE CLASS INSTANTIATION 2: Pool<EnemyProjectile>
+    Pool<Projectile> mProjectilePool;
+    Pool<EnemyProjectile> mEnemyProjectilePool;
+
+    // Coins system (Studenți Salvați)
+    int mCoins = 0;
+
+    // Inventory
+    Inventory mInventory;
+
+    bool mMagicUnlocked = false;
+
+    // Shop pricing
+    const int GRENADE_COST = 50;
+    const int HEALTH_POTION_COST = 25;
+    const int DAMAGE_BOOST_COST = 40;
+    const int MAGIC_DAMAGE_COST = 75;
+    const float DAMAGE_BOOST_MULTIPLIER = 1.10f;  // 10% boost
 };
 
 std::ostream& operator<<(std::ostream& os, const Game& game);

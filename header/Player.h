@@ -33,7 +33,8 @@ public:
 
     Weapon& getActiveWeapon();
 
-    void takeDamage(float damage);
+    void takeDamage(float damage) override;
+    void heal(float amount);
     bool isDead() const;
 
 private:

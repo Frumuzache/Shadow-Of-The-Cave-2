@@ -1,5 +1,15 @@
 #include "../header/Projectile.h"
 
+Projectile::Projectile()
+    : mDamage(0.f), mDestroyed(false)
+{
+    mShape.setRadius(5.f);
+    mShape.setFillColor(sf::Color::Yellow);
+    mShape.setOrigin({5.f, 5.f});
+    mShape.setPosition({0.f, 0.f});
+    mVelocity = {0.f, 0.f};
+}
+
 Projectile::Projectile(sf::Vector2f startPos, sf::Vector2f direction, float speed, float damage)
     : mDamage(damage), mDestroyed(false)
 {

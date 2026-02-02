@@ -14,6 +14,11 @@ sf::Vector2f Entity::getPosition() const { return mSprite.getPosition(); }
 sf::Vector2u Entity::getSpriteSize() const { return mTexture.getSize(); }
 float Entity::getCurrentHealth() const { return currentHealth; }
 
+void Entity::takeDamage(float damage) {
+    currentHealth -= damage;
+    if (currentHealth < 0.f) currentHealth = 0.f;
+}
+
 void Entity::render(sf::RenderWindow& window) const {
     window.draw(mSprite);
 }
